@@ -1,0 +1,29 @@
+<html>
+
+
+<h1> simple ex 3</h1>
+
+Printing the arg structure :
+<pre>{arg,#Port<0.18>,
+          {{127,0,0,1},59488},
+          {headers,"Keep-Alive","*/*","localhost:8000",undefined,undefined,
+                   undefined,undefined,undefined,undefined,
+                   "http://localhost:8000/simple.yaws","Wget/1.24.5",
+                   undefined,
+                   ["baz=nonode@nohost-51068963620473579774091960299093468888; foobar=<0.502.0>; pfoobar=1"],
+                   undefined,undefined,undefined,undefined,undefined,
+                   undefined,undefined,undefined,
+                   [{http_header,10,'Accept-Encoding',"Accept-Encoding",
+                                 "identity"}]},
+          {http_request,'GET',{abs_path,"/simple_ex4.yaws"},{1,1}},
+          {http_request,'GET',{abs_path,"/simple_ex4.yaws"},{1,1}},
+          undefined,"/simple_ex4.yaws",undefined,undefined,
+          "/home/avtobiff/src/github/avtobiff/yaws/build/gh-pages.Puku/_inst/var/yaws/www",
+          "/",
+          "/home/avtobiff/src/github/avtobiff/yaws/build/gh-pages.Puku/_inst/var/yaws/www/simple_ex4.yaws",
+          undefined,undefined,<0.131.0>,[],undefined,"/",undefined,undefined}
+</pre>
+
+
+
+</html>

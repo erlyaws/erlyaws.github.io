@@ -1,0 +1,176 @@
+
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+ <meta name="keywords" content="Yaws"/>
+ <title>Yaws</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <link rel="stylesheet" type="text/css" href="stil.css"/>
+ <link rel="shortcut icon" href="/icons/yaws_y.gif" type="image/x-icon"/>
+</head>
+
+<body>
+
+
+
+<div class="logo">
+   <img src="icons/yaws_head.gif" width="600" alt="YAWS"/>
+</div>
+
+
+
+<div id="sidebar">
+<h4> Yaws </h4>
+<div class=""> <a href="index.yaws" id="index" >Top Page</a> </div>
+<div class=""> <a href="configuration.yaws" id="configuration">Build Config and Run</a></div>
+<div class=""> <a href="dynamic.yaws" id="dynamic" >Dynamic Content</a> </div>
+<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="contact.yaws" id="contact">Contact </a> </div>
+<div class=""> <a href="doc.yaws" id="doc">Documentation</a>  </div>
+<div class=""> <a href="articles.yaws" id="resources">Articles</a> </div>
+
+<h4> Examples </h4>
+<div class=""> <a href="/json_intro.yaws">AJAX/JSON RPC</a></div>
+<div class=""> <a href="/appmods.yaws">Appmods</a> </div>
+<div class=""> <a href="/arg.yaws">Arg</a> </div>
+<div class=""> <a href="/privbind.yaws">Binding to Privileged Ports</a></div>
+<div class=""> <a href="/bindings.yaws">Bindings</a> </div>
+<div class=""> <a href="/cgi.yaws">CGI</a></div>
+<div class=""> <a href="/session.yaws">Cookie Sessions</a>   </div>
+<div class=""> <a href="/cookies.yaws">Cookies</a>  </div>
+<div class=""> <a href="/dynamic.yaws">Dynamic Content</a> </div>
+<div class=""> <a href="/embed.yaws">Embedding Yaws</a></div>
+<div class=""> <a href="/upload0.yaws">File Upload</a> </div>
+<div class=""> <a href="/form.yaws">Forms</a> </div>
+<div class="choosen"> <a href="/haxe_intro.yaws">haXe Remoting</a></div>
+<div class=""> <a href="/pcookie.yaws">Persistent Cookies</a> </div>
+<div class=""> <a href="/query.yaws">Query Part of URL</a></div>
+<div class=""> <a href="/rebar_release.yaws">Rebar Releases</a></div>
+<div class=""> <a href="/redirect.yaws">Redirect</a> </div>
+<div class=""> <a href="/server_sent_events.yaws">Server-Sent Events</a> </div>
+<div class=""> <a href="/ssi.yaws">Server Side Includes</a> </div>
+<div class=""> <a href="/simple.yaws">Simple</a> </div>
+<div class=""> <a href="/soap_intro.yaws">SOAP with Yaws</a></div>
+<div class=""> <a href="/stream.yaws">Streaming Data</a> </div>
+<div class=""> <a href="/websockets.yaws">Web Sockets</a> </div>
+<a href="/shoppingcart/index.yaws">Tiny Shopping Cart</a>
+<div class=""> <a href="/yapp_intro.yaws">Yaws Applications (yapps)</a></div>
+<div class=""> <a href="/logger_mod.yaws">Write Your Own Logger</a></div>
+
+<h4> Misc </h4>
+<div class=""> <a href="/internals.yaws">Internals</a> </div>
+
+
+
+</div>
+
+
+
+
+
+<div id="entry">
+<h1>haXe remoting</h1>
+<p>The yaws_rpc module has a haXe remoting adapter that enables Yaws to respond to respond to RPC requests from a client written in <a href="http://www.haxe.org">haXe</a>. haXe is a versatile open source language that compiles to Flash, Javascript and NekoVM. For more information on haXe, visit <a href="http://www.haxe.org/intro">www.haxe.org/intro</a>.</p>
+<p>Implementing the server side of a haXe remoting interaction in Yaws is very similar to the one described in the <a href="json_intro.yaws">Ajax/JSON RPC</a> page. Most of the action takes place behind the scenes inside the the yaws_rpc module. The same types (array, struct, number and string) work for haXe remoting as for JSON RPC. There are just a few new things to keep in mind when using haXe remoting: </p>
+<ol>
+<li>
+<p>Class objects and enums work with standard haXe remoting, but are not supported in Yaws. You should therefore rely on anonymous objects and signatures when designing your haXe remoting calls.</p></li>
+<li>
+<p>A Yaws RPC handler can "throw an exception" by returning {exception, Obj}, where Obj is any valid haXe remoting value.</p></li>
+<li>
+<p>haXe remoting has a few extra values, expressed by the atoms 'infinity', 'neg_infinity' and 'nan', corresponding to infinity, negative infinity and 'not a number.'</p></li></ol>
+<p>Following is an example demonstrating the use of haXe remoting in yaws. The first code segment is the haXe client code, which invokes the 'echo' method in haxe_sample.yaws and displays the result:</p>
+<div class="box">
+<pre>// To try this sample out using haXe and neko,
+// save this file as Application.hx and run the following to compile it:
+// haxe Application -neko Application.n -main Application.hx
+// and the following to execute it:
+// neko Application.n
+class Application {
+
+  public static function main():Void {
+    var URL = &quot;http://localhost:8000/haxe_sample.yaws&quot;;
+    var cnx = haxe.remoting.HttpAsyncConnection.urlConnect(URL);
+    cnx.setErrorHandler( function(err) {
+      trace(&quot;Exception : &quot; + Std.string(err));
+    } );
+    var a = {a:&quot;foo&quot;, b:&quot;bar&quot;, c:[1,2,3]};
+    var b = &quot;hello, Erlang!&quot;;
+    cnx.echo.call([a, b], display);
+    cnx.failure.call([a, b], display);
+  }
+
+  static function display(v) {
+    trace(v);
+  }
+}
+</pre></div>
+<p>On the server side, we have the file haxe_sample.yaws with the following code: </p>
+<div class="box">
+<pre>&lt;erl module=haxe_sample&gt;
+-export([respond/2]).
+
+out(A) -&gt;
+        A1 = A#arg{state = {new_state, &quot;alive and kicking&quot;}},
+        yaws_rpc:handler(A1, {haxe_sample, respond}).
+
+respond(State, {call, failure, Value} = _Request) -&gt;
+        { false, { error, { struct, [ { message, &quot;Failure&quot; }, { code, 500 } ] } } };
+
+respond(State, {call, echo, Value} = _Request) -&gt;
+        {new_state, StateVal} = State,
+        {array, [First, Second]} = Value,
+        Response =
+                {response,
+                {struct, [
+                        {you_sent_first, First},
+                        {btw, &quot;Hello haXe!&quot;},
+                        {also, {array, [&quot;take&quot;, &quot;this&quot;, 4, &quot;array&quot;]}},
+                        {my_state_is, StateVal}
+                        ]
+                }},
+            {true, 0, null, Response}.
+&lt;/erl&gt;
+</pre></div>
+<p>The two important lines on the server side are:</p>
+<ol>
+<li>
+<pre>yaws_rpc:handler(A1, {haxe_sample, respond}).</pre></li>
+<li>
+<pre>respond(State, {call, echo, Value} = _Request)</pre></li></ol>
+<p>The first line tells Yaws to forward all RPC calls (this includes both haXe remoting and JSON RPC calls -- remember that the yaws_rpc module handles both RPC mechanisms transparently) to the "respond" function in the "haxe_sample" module. </p>
+<p>The second line tells Yaws to invoke this 'respond' function when the client requests the method 'echo', while passing the new state variable as the first argument to 'respond'. You should duplicate this line for every RPC method you wish to implement, replacing 'echo' with the method's name.</p>
+<p>yaws_rpc optionally handles sessions for both JSON RPC and haXe remoting. To use sessions, invoke yaws_rpc:handler_session as shown in the JSON RPC documentation page.</p>
+<p>If the response is in the form of {exception, Obj}, where Obj is any valid haXe remoting type, then the haXe client will invoke the 'onError' handler, with Obj passed as the parameter.</p>
+<p>As with JSON RPC, both request and response values can be composed of nested tuples of the form</p>
+<div class="box">
+<pre>{array, [Obj,...]}</pre></div>
+<p>and/or </p>
+<div class="box">
+<pre>{struct, [{prop, Val}...]}</pre></div>
+<p>Now go have fun! :)</p></div><div class="logo">
+<img src="/icons/yaws_pb.gif" alt="pbyaws" />
+</div>
+
+
+ <p>
+      <a href="http://validator.w3.org/check?uri=referer"><img
+          src="http://www.w3.org/Icons/valid-xhtml10"
+          alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+    </p>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+

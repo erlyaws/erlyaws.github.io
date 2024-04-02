@@ -1,0 +1,272 @@
+
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+ <meta name="keywords" content="Yaws"/>
+ <title>Yaws</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <link rel="stylesheet" type="text/css" href="stil.css"/>
+ <link rel="shortcut icon" href="/icons/yaws_y.gif" type="image/x-icon"/>
+</head>
+
+<body>
+
+
+
+<div class="logo">
+   <img src="icons/yaws_head.gif" width="600" alt="YAWS"/>
+</div>
+
+
+
+<div id="sidebar">
+<h4> Yaws </h4>
+<div class=""> <a href="index.yaws" id="index" >Top Page</a> </div>
+<div class=""> <a href="configuration.yaws" id="configuration">Build Config and Run</a></div>
+<div class=""> <a href="dynamic.yaws" id="dynamic" >Dynamic Content</a> </div>
+<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="contact.yaws" id="contact">Contact </a> </div>
+<div class=""> <a href="doc.yaws" id="doc">Documentation</a>  </div>
+<div class=""> <a href="articles.yaws" id="resources">Articles</a> </div>
+
+<h4> Examples </h4>
+<div class=""> <a href="/json_intro.yaws">AJAX/JSON RPC</a></div>
+<div class=""> <a href="/appmods.yaws">Appmods</a> </div>
+<div class=""> <a href="/arg.yaws">Arg</a> </div>
+<div class="choosen"> <a href="/privbind.yaws">Binding to Privileged Ports</a></div>
+<div class=""> <a href="/bindings.yaws">Bindings</a> </div>
+<div class=""> <a href="/cgi.yaws">CGI</a></div>
+<div class=""> <a href="/session.yaws">Cookie Sessions</a>   </div>
+<div class=""> <a href="/cookies.yaws">Cookies</a>  </div>
+<div class=""> <a href="/dynamic.yaws">Dynamic Content</a> </div>
+<div class=""> <a href="/embed.yaws">Embedding Yaws</a></div>
+<div class=""> <a href="/upload0.yaws">File Upload</a> </div>
+<div class=""> <a href="/form.yaws">Forms</a> </div>
+<div class=""> <a href="/haxe_intro.yaws">haXe Remoting</a></div>
+<div class=""> <a href="/pcookie.yaws">Persistent Cookies</a> </div>
+<div class=""> <a href="/query.yaws">Query Part of URL</a></div>
+<div class=""> <a href="/rebar_release.yaws">Rebar Releases</a></div>
+<div class=""> <a href="/redirect.yaws">Redirect</a> </div>
+<div class=""> <a href="/server_sent_events.yaws">Server-Sent Events</a> </div>
+<div class=""> <a href="/ssi.yaws">Server Side Includes</a> </div>
+<div class=""> <a href="/simple.yaws">Simple</a> </div>
+<div class=""> <a href="/soap_intro.yaws">SOAP with Yaws</a></div>
+<div class=""> <a href="/stream.yaws">Streaming Data</a> </div>
+<div class=""> <a href="/websockets.yaws">Web Sockets</a> </div>
+<a href="/shoppingcart/index.yaws">Tiny Shopping Cart</a>
+<div class=""> <a href="/yapp_intro.yaws">Yaws Applications (yapps)</a></div>
+<div class=""> <a href="/logger_mod.yaws">Write Your Own Logger</a></div>
+
+<h4> Misc </h4>
+<div class=""> <a href="/internals.yaws">Internals</a> </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div id="entry">
+
+<h1>Binding to privileged ports</h1>
+
+<p>
+  A common misfeature found on UN*X operating systems is the
+  restriction that only root can bind to ports below 1024.
+  Many a dollar has been wasted on workarounds and -often- the results are
+  security holes.
+
+</p>
+<p>
+  Both FreeBSD and Solaris have elegant configuration options to
+  turn this feature off. On FreeBSD:
+
+<div class="box">
+      <pre>
+	$ sysctl net.inet.ip.portrange.reservedhigh=0
+      </pre>
+</div>
+
+the above is best added to your /etc/sysctl.conf
+</p>
+<p>
+  Similarly on Solaris we can just configure away this misfeature.
+  Assuming we want to run Yaws/SSL under a non-root user "erlang" on
+  ports 80/443.
+</p>
+<p>
+  On Solaris we can do that easily by granting the specific right to bind
+  privileged ports <1024 (and only that) to "erlang" using:
+</p>
+
+<div class="box">
+      <pre>
+$ /usr/sbin/usermod -K defaultpriv=basic,net_privaddr erlang
+      </pre>
+</div>
+
+<p>
+And check the we get what we want through:
+</p>
+
+
+<div class="box">
+      <pre>
+$ grep erlang /etc/user_attr
+erlang::::type=normal;defaultpriv=basic,net_privaddr
+
+      </pre>
+</div>
+
+
+<p>
+  On Linux, kernels later than 2.6.24, it's possible to do:
+</p>
+<div class="box">
+      <pre>
+$ setcap 'cap_net_bind_service=+ep' /usr/lib/erlang/erts-5.7.4/bin/beam
+      </pre>
+</div>
+
+<p>
+  The above command grants the capability of binding
+  privileged ports to beam. Note, you have to grant the priviliges to the
+  actual exectuable you are using.
+<p>
+
+<p>
+  There are a couple
+  of other options on Linux. One is to use an auxiliary program
+  like authbind <em>http://packages.debian.org/stable/authbind</em>
+  or privbind <em>http://sourceforge.net/projects/privbind/</em>
+</p>
+<p>
+  These programs are run by root. Yaws writes its temporary
+  JIT compiled files in $HOME/.yaws and this doesn't work that
+  well with authbind/privbind. A non root user will try to
+  write in /root/.yaws. The solution to this is to set the
+  environment variable YAWSHOME. Yaws will then consider that to
+  be HOME rather that $HOME.
+</p>
+<p>
+  To start yaws under e.g privbind we can do:
+</p>
+
+
+<div class="box">
+      <pre>
+$ sudo YAWSHOME=/tmp/abc privbind -u klacke /home/klacke/bin/yaws \
+    -c /home/klacke/yaws.conf -i
+
+      </pre>
+</div>
+
+<p>
+  The above command starts yaws as user <em>klacke</em> and bind
+  to ports below 1024
+</p>
+
+
+<p>
+  The authbind program is another option: Here is an example:
+</p>
+<div class="box">
+      <pre>
+touch /etc/authbind/byport/80
+touch /etc/authbind/byport/443
+chmod 500 /etc/authbind/byport/80
+chmod 500 /etc/authbind/byport/443
+chown bob /etc/authbind/byport/80
+chown bob /etc/authbind/byport/443
+YAWSHOME=/home/bob authbind yaws -c /home/bob/yaws.conf -i
+      </pre>
+</div>
+
+
+
+<p>
+Here is a description on how to do this on MacOs X. It's not exactly the same,
+since we're still binding to non privileged ports. However,
+edit /etc/sysctl and add:
+</p>
+
+<pre>
+net.inet.ip.forwarding=1
+</pre>
+
+<p>
+Then with ipfw as the firewall (turn off the gui firewall in system
+preferences and manage own rules) use the ipfw rules like these - for
+testing on your own box use something like:
+</p>
+
+<pre>
+ipfw add fwd 127.0.0.1,8080 tcp from any to 127.0.0.1 dst-port 80 in
+ipfw add fwd 127.0.0.1,8443 tcp from any to 127.0.0.1 dst-port 443 in
+</pre>
+
+<p>
+set up yaws to use 8080 and 8443 in yaws.conf and then run as some non
+root user.  When you browse to http://127.0.0.1 or https://127.0.0.1
+you will see your pages that are actually on 8080 and 8443 internally
+but will be forwarded via ipfw forwarding.
+</p>
+
+
+<p>
+
+Yet another (more complicated way) for linux users is to hack the kernel.
+Here is a patch I did for some version of the 2.6 series kernels .. you get the idea.
+</p>
+
+
+<pre>
+[root@lax]ipv4 &gt; diff -c af_inet.c*
+*** af_inet.c   Wed Feb 23 23:31:35 2005
+--- af_inet.c~  Thu Feb 17 18:13:13 2005
+***************
+*** 423,434 ****
+
+        snum = ntohs(addr-&gt;sin_port);
+        err = -EACCES;
+- #if 0
+-       /* removed by klacke */
+        if (snum &amp;&amp; snum &lt; PROT_SOCK &amp;&amp; !capable(CAP_NET_BIND_SERVICE))
+                goto out;
+- #endif
+-
+
+        /*      We keep a pair of addresses. rcv_saddr is the one
+         *      used by hash lookups, and saddr is used for transmit.
+--- 423,430 ----
+</pre>
+
+
+
+
+
+<div class="logo">
+<img src="/icons/yaws_pb.gif" alt="pbyaws" />
+</div>
+
+
+ <p>
+      <a href="http://validator.w3.org/check?uri=referer"><img
+          src="http://www.w3.org/Icons/valid-xhtml10"
+          alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+    </p>
+
+
+</body>
+</html>
+
+
+

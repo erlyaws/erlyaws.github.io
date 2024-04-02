@@ -1,0 +1,131 @@
+
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+ <meta name="keywords" content="Yaws"/>
+ <title>Yaws</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <link rel="stylesheet" type="text/css" href="stil.css"/>
+ <link rel="shortcut icon" href="/icons/yaws_y.gif" type="image/x-icon"/>
+</head>
+
+<body>
+
+
+
+<div class="logo">
+   <img src="icons/yaws_head.gif" width="600" alt="YAWS"/>
+</div>
+
+
+
+<div id="sidebar">
+<h4> Yaws </h4>
+<div class=""> <a href="index.yaws" id="index" >Top Page</a> </div>
+<div class=""> <a href="configuration.yaws" id="configuration">Build Config and Run</a></div>
+<div class=""> <a href="dynamic.yaws" id="dynamic" >Dynamic Content</a> </div>
+<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="contact.yaws" id="contact">Contact </a> </div>
+<div class=""> <a href="doc.yaws" id="doc">Documentation</a>  </div>
+<div class=""> <a href="articles.yaws" id="resources">Articles</a> </div>
+
+<h4> Examples </h4>
+<div class=""> <a href="/json_intro.yaws">AJAX/JSON RPC</a></div>
+<div class=""> <a href="/appmods.yaws">Appmods</a> </div>
+<div class=""> <a href="/arg.yaws">Arg</a> </div>
+<div class=""> <a href="/privbind.yaws">Binding to Privileged Ports</a></div>
+<div class=""> <a href="/bindings.yaws">Bindings</a> </div>
+<div class=""> <a href="/cgi.yaws">CGI</a></div>
+<div class=""> <a href="/session.yaws">Cookie Sessions</a>   </div>
+<div class=""> <a href="/cookies.yaws">Cookies</a>  </div>
+<div class=""> <a href="/dynamic.yaws">Dynamic Content</a> </div>
+<div class=""> <a href="/embed.yaws">Embedding Yaws</a></div>
+<div class=""> <a href="/upload0.yaws">File Upload</a> </div>
+<div class=""> <a href="/form.yaws">Forms</a> </div>
+<div class=""> <a href="/haxe_intro.yaws">haXe Remoting</a></div>
+<div class=""> <a href="/pcookie.yaws">Persistent Cookies</a> </div>
+<div class=""> <a href="/query.yaws">Query Part of URL</a></div>
+<div class=""> <a href="/rebar_release.yaws">Rebar Releases</a></div>
+<div class=""> <a href="/redirect.yaws">Redirect</a> </div>
+<div class=""> <a href="/server_sent_events.yaws">Server-Sent Events</a> </div>
+<div class="choosen"> <a href="/ssi.yaws">Server Side Includes</a> </div>
+<div class=""> <a href="/simple.yaws">Simple</a> </div>
+<div class=""> <a href="/soap_intro.yaws">SOAP with Yaws</a></div>
+<div class=""> <a href="/stream.yaws">Streaming Data</a> </div>
+<div class=""> <a href="/websockets.yaws">Web Sockets</a> </div>
+<a href="/shoppingcart/index.yaws">Tiny Shopping Cart</a>
+<div class=""> <a href="/yapp_intro.yaws">Yaws Applications (yapps)</a></div>
+<div class=""> <a href="/logger_mod.yaws">Write Your Own Logger</a></div>
+
+<h4> Misc </h4>
+<div class=""> <a href="/internals.yaws">Internals</a> </div>
+
+
+
+</div>
+
+
+
+
+
+<div id="entry">
+<h1>Server side includes (with variable expansion)</h1>
+<p>This feature is useful when we are writing applications where basically the entire page is dynamically generated but we also want to include snippets of either html or, even more typically, javascript which is almost static, but not quite.</p>
+<p>In particular the case with dynamically generated javascript can get syntactically ugly. So instead of generating strings in the erlang code for the javascripts and returning them as {pre_html, Data} tuples, it is more beautiful to keep the javascript functions in separate files and include them with the {ssi ...} return value.</p>
+<p>The format of the ssi statement is:</p><br></br>
+<div class="box">
+<pre>{ssi, File, Delimiter, Bindings}</pre></div>
+<p>The ssi structure can occur in two radically different places but with identical semantics. It can be a return value in the  out/1 function and it is a specially treated return value in ehtml output, here is an example of an odd return value from out/1</p>
+<div class="box">
+<pre>[{ssi,&quot;ssi_ex1&quot;,&quot;%&quot;,[{&quot;a&quot;,&quot;gazzonk&quot;}]},
+ {ehtml,[{h1,&quot;a Header&quot;},{ssi,&quot;ssi_ex1&quot;,&quot;%&quot;,[{&quot;a&quot;,&quot;zippo&quot;}]}]}]</pre></div>
+<p>The file ssi_ex1 contains the following text:</p>
+<div class="box">
+<pre>variable a = %a%
+</pre></div>
+<p>And the following ehtml output:</p>
+<div class="box">
+<pre>{ehtml,[{ssi,&quot;ssi_ex1&quot;,&quot;%&quot;,[{&quot;a&quot;,&quot;Godzilla&quot;}]}]}</pre></div>
+<p>Generates the following output</p>
+<div class="box">
+<pre>variable a = Godzilla
+</pre></div>
+<p>And so does the following out/1 function</p>
+<div class="box">
+<pre>out(A) -&gt; [{ssi, &quot;ssi_ex1&quot;, &quot;%&quot;, [{&quot;a&quot;, &quot;Godzilla&quot;}]}].</pre></div>
+<p>So this is the way to do when we want to embed dynamic content deep inside an ehtml structure, but the content isn't representable as ehtml. This is typically the case for dynamically generated  javascript as well as dynamically generated java applets.</p>
+<p>In the above example, "a" can be seen as the Variable name whereas "Godzilla" can be vieved upon as the value of variable "a". It is also possible to have the variable  value be a complete ehtml structure, not just plain ascii strings. Here is an example</p>
+<div class="box">
+<pre>out(A) -&gt;
+              E = {ehtml, {h1, [], &quot;Godzillas baby&quot;}},
+              [{ssi, &quot;ssi_ex1&quot;, &quot;%&quot;, [{&quot;a&quot;, E}]}].</pre></div>
+<h1>yssi, Yaws Server Side Includes</h1>
+<p>We have a special version of server side includes that we  call yssi, yaws server side includes. The syntax for this is: </p>
+<div class="box">
+<pre>{yssi, YawsFile}</pre></div>
+<p>Yssi can only be used as a return value from the out/1  function, never nested into a deep ehtml structure. Yssi, will perform full yaws expansion on the file named YawsFile, i.e (possibly on the fly) compile it, execute it and subsequently inject the generated output from the YawsFile. yssi statements can be arbitrarily deeply recursively nested, that  is a .yaws file which has been included through an 'yssi'  statement, may itself contain 'yssi' return values in its  out/1 function(s) </p></div>
+
+
+
+
+<div class="logo">
+<img src="/icons/yaws_pb.gif" alt="pbyaws" />
+</div>
+
+
+ <p>
+      <a href="http://validator.w3.org/check?uri=referer"><img
+          src="http://www.w3.org/Icons/valid-xhtml10"
+          alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+    </p>
+
+
+</body>
+</html>
+
+
+

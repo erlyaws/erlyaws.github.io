@@ -1,0 +1,212 @@
+
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+ <meta name="keywords" content="Yaws"/>
+ <title>Yaws</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <link rel="stylesheet" type="text/css" href="stil.css"/>
+ <link rel="shortcut icon" href="/icons/yaws_y.gif" type="image/x-icon"/>
+</head>
+
+<body>
+
+
+
+<div class="logo">
+   <img src="icons/yaws_head.gif" width="600" alt="YAWS"/>
+</div>
+
+
+
+<div id="sidebar">
+<h4> Yaws </h4>
+<div class=""> <a href="index.yaws" id="index" >Top Page</a> </div>
+<div class=""> <a href="configuration.yaws" id="configuration">Build Config and Run</a></div>
+<div class=""> <a href="dynamic.yaws" id="dynamic" >Dynamic Content</a> </div>
+<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="contact.yaws" id="contact">Contact </a> </div>
+<div class=""> <a href="doc.yaws" id="doc">Documentation</a>  </div>
+<div class=""> <a href="articles.yaws" id="resources">Articles</a> </div>
+
+<h4> Examples </h4>
+<div class=""> <a href="/json_intro.yaws">AJAX/JSON RPC</a></div>
+<div class=""> <a href="/appmods.yaws">Appmods</a> </div>
+<div class=""> <a href="/arg.yaws">Arg</a> </div>
+<div class=""> <a href="/privbind.yaws">Binding to Privileged Ports</a></div>
+<div class=""> <a href="/bindings.yaws">Bindings</a> </div>
+<div class=""> <a href="/cgi.yaws">CGI</a></div>
+<div class=""> <a href="/session.yaws">Cookie Sessions</a>   </div>
+<div class=""> <a href="/cookies.yaws">Cookies</a>  </div>
+<div class=""> <a href="/dynamic.yaws">Dynamic Content</a> </div>
+<div class=""> <a href="/embed.yaws">Embedding Yaws</a></div>
+<div class=""> <a href="/upload0.yaws">File Upload</a> </div>
+<div class=""> <a href="/form.yaws">Forms</a> </div>
+<div class=""> <a href="/haxe_intro.yaws">haXe Remoting</a></div>
+<div class=""> <a href="/pcookie.yaws">Persistent Cookies</a> </div>
+<div class=""> <a href="/query.yaws">Query Part of URL</a></div>
+<div class=""> <a href="/rebar_release.yaws">Rebar Releases</a></div>
+<div class="choosen"> <a href="/redirect.yaws">Redirect</a> </div>
+<div class=""> <a href="/server_sent_events.yaws">Server-Sent Events</a> </div>
+<div class=""> <a href="/ssi.yaws">Server Side Includes</a> </div>
+<div class=""> <a href="/simple.yaws">Simple</a> </div>
+<div class=""> <a href="/soap_intro.yaws">SOAP with Yaws</a></div>
+<div class=""> <a href="/stream.yaws">Streaming Data</a> </div>
+<div class=""> <a href="/websockets.yaws">Web Sockets</a> </div>
+<a href="/shoppingcart/index.yaws">Tiny Shopping Cart</a>
+<div class=""> <a href="/yapp_intro.yaws">Yaws Applications (yapps)</a></div>
+<div class=""> <a href="/logger_mod.yaws">Write Your Own Logger</a></div>
+
+<h4> Misc </h4>
+<div class=""> <a href="/internals.yaws">Internals</a> </div>
+
+
+
+</div>
+
+
+
+
+
+
+<div id="entry">
+
+<h2>Redirects</h2>
+
+<p> Redirs are a powerful tool in the webapp programmer toolbox. The
+Webserver returns a specific status code (302) and adds a
+"Location:" header
+to the responce headers to the Browser. The Browser then displays the new
+page as indicated in the "Location" header.</p>
+
+<p> Yaws supports a number of different forms of redirect return values
+from the out/1 function.</p>
+<p>
+The code:</p>
+
+
+<div class="box">
+<pre>
+<erl>
+%% redirect2.yaws
+
+out(_Arg) ->
+    L="http://www.google.com/search?num=20&hl=en&lr=lang_en%7Clang_sv&q=yaws",
+    {redirect, L}.
+</erl>
+</pre></div>
+
+<p> Clickable <a href="redirect2.yaws"> On this link </a> executes the
+  above redirect code.
+</p>
+
+<p> The code above redirects to an external URL. The HTTP RFC mandates
+  that the Loction header must contain complete URLs, including the
+  the method, http, https etc. A very common case of redirection, is
+  a to redirect to another file on the same server. The code
+  in <a href="redirect3.yaws"> redirect3.yaws </a> shows an example of
+  a yaws redirect relative to the "current" server.
+</p>
+
+
+<div class="box">
+<pre>
+<erl>
+%% redirect 3 yaws
+
+out(_Arg) ->
+    {redirect_local, "/redirect2.yaws"}.
+</erl>
+</pre></div>
+
+
+<p> The code in <a href="redirect3.yaws"> redirect3.yaws </a> will
+  do a relative redirect to the code in
+  <a href="redirect2.yaws"> redirect2.yaws </a> which in its turn
+  redirects, once again, to google. Double redirects.
+</p>
+
+<p>While working with redirects, the tool <a href="http://curl.haxx.se/"> curl </a>
+is an excellent way to troubleshoot the behaviour of your
+redirects. For example:</p>
+
+<div class="box">
+  <pre>
+
+    # curl -I http://rubin.hyber.org:8000/redirect3.yaws
+
+    HTTP/1.1 302 Found
+    Server: Yaws/1.49 Yet Another Web Server
+    Location: http://rubin.hyber.org:8000/redirect2.yaws
+    Date: Tue, 16 Nov 2004 20:16:01 GMT
+    Content-Type: text/html
+
+  </pre>
+</div>
+
+  <p>Where <tt> http://rubin.hyber.org:8000</tt> is where I am currently
+    testing the <a href="redirect3.yaws"> redirect3.yaws </a> code.
+    Learn and use the <a href="http://curl.haxx.se/"> curl </a>
+    web client, it may not render pictures pretty, but it sure displays
+    headers.
+  </p>
+  <br />
+
+  <p> We show one additional version of redirect code. The code in
+    <a href="redirect3.yaws"> redirect3.yaws </a> requires an absolute path.
+    If we want to supply a path relative to the current url, we can use
+    either the Redirect modifier <tt>rel_path</tt> or <tt>any_path</tt>
+    as in :
+  </p>
+
+
+<div class="box">
+<pre>
+<erl>
+%% redirect4.yaws
+
+out(_Arg) ->
+    {redirect_local, {any_path, "redirect2.yaws"}}.
+</erl>
+</pre></div>
+
+<p> <a href = "redirect4.yaws"> Clickable here </a>
+</p>
+
+<p>You can also redirect a whole site via virtual server configuration. For
+example, you can redirect all port 80 requests to port 443 like this:</p>
+
+<div class="box">
+  <pre>
+    &lt;server vhost1.tld&gt;
+       port   = 80
+       listen = 0.0.0.0
+       &lt;redirect&gt;
+         / = https://vhost2.tld:443
+       &lt;/redirect&gt;
+    &lt;/server&gt;
+  </pre>
+</div>
+
+</div>
+
+
+<div class="logo">
+<img src="/icons/yaws_pb.gif" alt="pbyaws" />
+</div>
+
+
+ <p>
+      <a href="http://validator.w3.org/check?uri=referer"><img
+          src="http://www.w3.org/Icons/valid-xhtml10"
+          alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+    </p>
+
+
+</body>
+</html>
+

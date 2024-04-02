@@ -1,0 +1,97 @@
+<html>
+
+<h2> Read cookie </h2>
+
+<p> Yes, I read your cookie You have vistited this page 2 times they were 
+<ol> 
+<li> {{2024,4,3},{1,4,24}}
+<li> {{2024,4,3},{1,4,24}}
+ </ol>
+ Reloading this page will show the session state 
+
+
+<p>
+The code to read the cookie, is simple, we get the cookie passed to the yaws
+code in the #arg structure which is the argument supplied to the out/1 function.
+
+<p>We use the <tt>yaws_api:find_cookie_val/2</tt> function to parse
+the raw cookie string passed to us from the browser.
+
+The code is:
+<br><br>
+<div class="box"> <pre>
+&lt;html&gt;
+
+&lt;h2&gt; Read cookie &lt;/h2&gt;
+
+&lt;erl&gt;
+out(A) -&gt;
+    H=A#arg.headers,
+    C = H#headers.cookie,
+
+    L=case yaws_api:find_cookie_val(&quot;foobar&quot;, C) of
+          [] -&gt;
+              f(&quot;&lt;p&gt; No cookie set from the browser, need to &quot;
+                &quot;visit &lt;a href=\&quot;setcookie.yaws\&quot;&gt;setcookie.yaws&lt;/a&gt; &quot;
+                &quot;to set the cookie first ~n&quot;, []);
+          PidStr -&gt;
+              Pid = list_to_pid(PidStr),
+              Pid ! {self(), tick},
+              receive
+                  {Pid, VisitList} -&gt;
+                    f(&quot;&lt;p&gt; Yes, I read your cookie &quot;
+                      &quot;You have vistited this page ~w times &quot;
+                      &quot;they were ~n&lt;ol&gt; ~n~s &lt;/ol&gt;~n &quot;
+
+                      &quot;Reloading this page will show the session state &quot;,
+
+                      [length(VisitList),
+                       lists:map(fun(D) -&gt;
+                                         f(&quot;&lt;li&gt; ~p~n&quot;, [D])  end,
+                                 VisitList)
+                      ])
+              after 500 -&gt;
+                      f(&quot;&lt;p&gt; You had a cookie, but the pid handling your sess &quot;
+                        &quot;timedout ...&quot;,[])
+              end
+      end,
+    {html, L}.
+
+&lt;/erl&gt;
+
+
+&lt;p&gt;
+The code to read the cookie, is simple, we get the cookie passed to the yaws
+code in the #arg structure which is the argument supplied to the out/1 function.
+
+&lt;p&gt;We use the &lt;tt&gt;yaws_api:find_cookie_val/2&lt;/tt&gt; function to parse
+the raw cookie string passed to us from the browser.
+
+The code is:
+&lt;erl&gt;
+out(A) -&gt;
+    yaws_api:pre_ssi_files(A#arg.docroot, [&quot;readcookie.yaws&quot;]).
+&lt;/erl&gt;
+
+
+
+
+&lt;/html&gt;
+
+
+
+
+
+</pre></div>
+<br>
+
+
+
+
+
+
+</html>
+
+
+
+

@@ -1,0 +1,111 @@
+
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+ <meta name="keywords" content="Yaws"/>
+ <title>Yaws</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <link rel="stylesheet" type="text/css" href="stil.css"/>
+ <link rel="shortcut icon" href="/icons/yaws_y.gif" type="image/x-icon"/>
+</head>
+
+<body>
+
+
+
+<div class="logo">
+   <img src="icons/yaws_head.gif" width="600" alt="YAWS"/>
+</div>
+
+
+
+<div id="sidebar">
+<h4> Yaws </h4>
+<div class="choosen"> <a href="index.yaws" id="index" >Top Page</a> </div>
+<div class=""> <a href="configuration.yaws" id="configuration">Build Config and Run</a></div>
+<div class=""> <a href="dynamic.yaws" id="dynamic" >Dynamic Content</a> </div>
+<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="contact.yaws" id="contact">Contact </a> </div>
+<div class=""> <a href="doc.yaws" id="doc">Documentation</a>  </div>
+<div class=""> <a href="articles.yaws" id="resources">Articles</a> </div>
+
+<h4> Examples </h4>
+<div class=""> <a href="/json_intro.yaws">AJAX/JSON RPC</a></div>
+<div class=""> <a href="/appmods.yaws">Appmods</a> </div>
+<div class=""> <a href="/arg.yaws">Arg</a> </div>
+<div class=""> <a href="/privbind.yaws">Binding to Privileged Ports</a></div>
+<div class=""> <a href="/bindings.yaws">Bindings</a> </div>
+<div class=""> <a href="/cgi.yaws">CGI</a></div>
+<div class=""> <a href="/session.yaws">Cookie Sessions</a>   </div>
+<div class=""> <a href="/cookies.yaws">Cookies</a>  </div>
+<div class=""> <a href="/dynamic.yaws">Dynamic Content</a> </div>
+<div class=""> <a href="/embed.yaws">Embedding Yaws</a></div>
+<div class=""> <a href="/upload0.yaws">File Upload</a> </div>
+<div class=""> <a href="/form.yaws">Forms</a> </div>
+<div class=""> <a href="/haxe_intro.yaws">haXe Remoting</a></div>
+<div class=""> <a href="/pcookie.yaws">Persistent Cookies</a> </div>
+<div class=""> <a href="/query.yaws">Query Part of URL</a></div>
+<div class=""> <a href="/rebar_release.yaws">Rebar Releases</a></div>
+<div class=""> <a href="/redirect.yaws">Redirect</a> </div>
+<div class=""> <a href="/server_sent_events.yaws">Server-Sent Events</a> </div>
+<div class=""> <a href="/ssi.yaws">Server Side Includes</a> </div>
+<div class=""> <a href="/simple.yaws">Simple</a> </div>
+<div class=""> <a href="/soap_intro.yaws">SOAP with Yaws</a></div>
+<div class=""> <a href="/stream.yaws">Streaming Data</a> </div>
+<div class=""> <a href="/websockets.yaws">Web Sockets</a> </div>
+<a href="/shoppingcart/index.yaws">Tiny Shopping Cart</a>
+<div class=""> <a href="/yapp_intro.yaws">Yaws Applications (yapps)</a></div>
+<div class=""> <a href="/logger_mod.yaws">Write Your Own Logger</a></div>
+
+<h4> Misc </h4>
+<div class=""> <a href="/internals.yaws">Internals</a> </div>
+
+
+
+</div>
+
+
+
+
+
+<div id="entry">
+<h1>Yaws</h1>
+<p>Yaws is a HTTP high perfomance 1.1 webserver particularly well suited for dynamic-content web applications. Two
+         separate modes of operations are supported:</p>
+<ul>
+<li>
+<p>Standalone mode where Yaws runs as a regular webserver daemon. This is the default mode.</p></li>
+<li>
+<p>Embedded mode where Yaws runs as an embedded webserver in another Erlang application.</p></li></ul>
+<p>Yaws is entirely written in <a href="http://www.erlang.org">Erlang</a>, and furthermore it is a multithreaded webserver where one Erlang lightweight process is used to handle each client.</p>
+<p>The main advantages of Yaws compared to other Web technologies are performance and elegance. The performance comes from the  underlying Erlang system and its ability to handle concurrent  processes in an efficent way. Its elegance comes from Erlang as well. Web applications don't have to be written in ugly ad hoc languages.</p>
+<h2>erlyaws.github.io</h2>
+<p>The www page for Yaws is <a href="http://erlyaws.github.io">erlyaws.github.io</a>. The documentation, examples as well as releases can be found there, and of course, <a href="http://erlyaws.github.io">erlyaws.github.io</a> is itself powered by Yaws.</p>
+<p>Code is on : <a href="http://github.com/erlyaws/yaws">http://github.com/erlyaws/yaws</a></p>
+<p>Travis test results at :<a href="https://github.com/erlyaws/yaws/actions/workflows/main.yml">https://github.com/erlyaws/yaws/actions/workflows/main.yml</a></p>
+<p>A mailing list exists at: <a href="https://lists.sourceforge.net/lists/listinfo/erlyaws-list">https://lists.sourceforge.net/lists/listinfo/erlyaws-list</a></p>
+<p>A lot of excellent engineers have contributed to Yaws over the years, we keep a list of all <a href="contributors.txt">contributors</a></p>
+<p>A high resolution logo created by Tomas Selander exists at <a href="yaws.eps">yaws.eps</a></p>
+<h2>News</h2>
+<p>To see all the most recent changes and activity in Yaws development, please visit the <a href="https://github.com/erlyaws/yaws">Yaws github repository</a>.</p></div><div class="logo">
+<img src="/icons/yaws_pb.gif" alt="pbyaws" />
+</div>
+
+
+ <p>
+      <a href="http://validator.w3.org/check?uri=referer"><img
+          src="http://www.w3.org/Icons/valid-xhtml10"
+          alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+    </p>
+
+
+</body>
+</html>
+
+
+
+

@@ -1,0 +1,36 @@
+
+<h5>The headers passed to us were:</h5>
+<hr></hr>
+<ol>
+<li>
+<p>Connection: Keep-Alive</p></li>
+<li>
+<p>Accept: */*</p></li>
+<li>
+<p>Host: localhost:8000</p></li>
+<li>
+<p>Referer: http://localhost:8000/arg.yaws</p></li>
+<li>
+<p>User-Agent: Wget/1.24.5</p></li>
+<li>
+<p>Accept-Encoding: identity</p></li></ol>
+<h5>The request</h5>
+<ul>
+<li>method: GET</li>
+<li>path: {abs_path,"/arg2.yaws"}</li>
+<li>version: {1,1}</li></ul>
+<hr></hr>
+<h5>Other items</h5>
+<ul>
+<li>Peer: {{127,0,0,1},59488}</li>
+<li>docroot: /home/avtobiff/src/github/avtobiff/yaws/build/gh-pages.Puku/_inst/var/yaws/www</li>
+<li>fullpath: /home/avtobiff/src/github/avtobiff/yaws/build/gh-pages.Puku/_inst/var/yaws/www/arg2.yaws</li></ul>
+<hr></hr>
+<h5>Parsed query data</h5>
+<pre>[]</pre>
+<hr></hr>
+<h5>Parsed POST data </h5>
+<pre>[]</pre>
+
+
+
