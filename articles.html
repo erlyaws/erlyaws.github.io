@@ -25,13 +25,13 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
 <div id="sidebar">
 <h4> Yaws </h4>
-<div class="choosen"> <a href="index.html" id="index" >Top Page</a> </div>
+<div class=""> <a href="index.html" id="index" >Top Page</a> </div>
 <div class=""> <a href="configuration.html" id="configuration">Build Config and Run</a></div>
 <div class=""> <a href="dynamic.html" id="dynamic" >Dynamic Content</a> </div>
 <div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
 <div class=""> <a href="contact.html" id="contact">Contact </a> </div>
 <div class=""> <a href="doc.html" id="doc">Documentation</a>  </div>
-<div class=""> <a href="articles.html" id="resources">Articles</a> </div>
+<div class="choosen"> <a href="articles.html" id="resources">Articles</a> </div>
 
 <h4> Examples </h4>
 <div class=""> <a href="/json_intro.html">AJAX/JSON RPC</a></div>
@@ -72,26 +72,50 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
 
 
+
 <div id="entry">
-<h1>Yaws</h1>
-<p>Yaws is a HTTP high perfomance 1.1 webserver particularly well suited for dynamic-content web applications. Two
-         separate modes of operations are supported:</p>
+
+<h2>Articles, Books, and Other Resources</h2>
+
 <ul>
-<li>
-<p>Standalone mode where Yaws runs as a regular webserver daemon. This is the default mode.</p></li>
-<li>
-<p>Embedded mode where Yaws runs as an embedded webserver in another Erlang application.</p></li></ul>
-<p>Yaws is entirely written in <a href="http://www.erlang.org">Erlang</a>, and furthermore it is a multithreaded webserver where one Erlang lightweight process is used to handle each client.</p>
-<p>The main advantages of Yaws compared to other Web technologies are performance and elegance. The performance comes from the  underlying Erlang system and its ability to handle concurrent  processes in an efficent way. Its elegance comes from Erlang as well. Web applications don't have to be written in ugly ad hoc languages.</p>
-<h2>erlyaws.github.io</h2>
-<p>The www page for Yaws is <a href="http://erlyaws.github.io">erlyaws.github.io</a>. The documentation, examples as well as releases can be found there, and of course, <a href="http://erlyaws.github.io">erlyaws.github.io</a> is itself powered by Yaws.</p>
-<p>Code is on : <a href="http://github.com/erlyaws/yaws">http://github.com/erlyaws/yaws</a></p>
-<p>Travis test results at :<a href="https://github.com/erlyaws/yaws/actions/workflows/main.yml">https://github.com/erlyaws/yaws/actions/workflows/main.yml</a></p>
-<p>A mailing list exists at: <a href="https://lists.sourceforge.net/lists/listinfo/erlyaws-list">https://lists.sourceforge.net/lists/listinfo/erlyaws-list</a></p>
-<p>A lot of excellent engineers have contributed to Yaws over the years, we keep a list of all <a href="contributors.txt">contributors</a></p>
-<p>A high resolution logo created by Tomas Selander exists at <a href="yaws.eps">yaws.eps</a></p>
-<h2>News</h2>
-<p>To see all the most recent changes and activity in Yaws development, please visit the <a href="https://github.com/erlyaws/yaws">Yaws github repository</a>.</p></div><div class="logo">
+
+<li><p>The book <a
+href="http://shop.oreilly.com/product/0636920021452.do"><em>Building Web
+Applications with Erlang</em></a> by Zachary Kessin, published by <a
+href="http://www.oreilly.com">O'Reilly</a> in June 2012, provides quite a
+bit of information about using Yaws.</p></li>
+
+<li><p>In his "Functional Web" column in <a
+href="http://computer.org/internet/">IEEE Internet Computing magazine</a>,
+<a href="http://steve.vinoski.net/">Steve Vinoski</a> wrote a couple
+columns about Yaws. Both are available in PDF format:</p><ul> <li><a
+href="http://steve.vinoski.net/pdf/IC-Yaws.pdf">"Yaws: Yet Another Web
+Server"</a>, July/August 2011</li> <li><a
+href="http://steve.vinoski.net/pdf/IC-SSE_with_Yaws.pdf">"Server-Sent
+Events with Yaws"</a>, Sep/Oct 2012</li></ul></p></li>
+
+<li><p><a href="http://steve.vinoski.net/">Steve Vinoski</a> gave a talk
+entitled <a href="http://www.infoq.com/presentations/Erlang-Yaws">"Erlang
+Web Development with Yaws"</a> at the <a
+href="https://thestrangeloop.com/archive/2012">Strange Loop 2012
+conference</a>.</p></li>
+
+<li><p>There are a number of <a
+href="http://stackoverflow.com/questions/tagged/yaws">Yaws questions with
+answers on StackOverflow</a>.</p></li>
+
+<li><p><a href="http://steve.vinoski.net/">Steve Vinoski</a> wrote an
+article entitled <a
+href="http://www.infoq.com/articles/vinoski-erlang-rest">"RESTful Services
+with Erlang and Yaws"</a> for <a href="http://www.infoq.com">infoq.com</a>
+back in 2008. Despite being a few years old, the advice in the article
+remains relevant.</p></li>
+
+</ul>
+
+</div>
+
+<div class="logo">
 <img src="/icons/yaws_pb.gif" alt="pbyaws" />
 </div>
 
@@ -105,7 +129,4 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
 </body>
 </html>
-
-
-
 

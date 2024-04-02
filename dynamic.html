@@ -1,0 +1,227 @@
+
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+ <meta name="keywords" content="Yaws"/>
+ <title>Yaws</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <link rel="stylesheet" type="text/css" href="stil.css"/>
+ <link rel="shortcut icon" href="/icons/yaws_y.gif" type="image/x-icon"/>
+</head>
+
+<body>
+
+
+
+<div class="logo">
+   <img src="icons/yaws_head.gif" width="600" alt="YAWS"/>
+</div>
+
+
+
+<div id="sidebar">
+<h4> Yaws </h4>
+<div class=""> <a href="index.html" id="index" >Top Page</a> </div>
+<div class=""> <a href="configuration.html" id="configuration">Build Config and Run</a></div>
+<div class="choosen"> <a href="dynamic.html" id="dynamic" >Dynamic Content</a> </div>
+<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="contact.html" id="contact">Contact </a> </div>
+<div class=""> <a href="doc.html" id="doc">Documentation</a>  </div>
+<div class=""> <a href="articles.html" id="resources">Articles</a> </div>
+
+<h4> Examples </h4>
+<div class=""> <a href="/json_intro.html">AJAX/JSON RPC</a></div>
+<div class=""> <a href="/appmods.html">Appmods</a> </div>
+<div class=""> <a href="/arg.html">Arg</a> </div>
+<div class=""> <a href="/privbind.html">Binding to Privileged Ports</a></div>
+<div class=""> <a href="/bindings.html">Bindings</a> </div>
+<div class=""> <a href="/cgi.html">CGI</a></div>
+<div class=""> <a href="/session.html">Cookie Sessions</a>   </div>
+<div class=""> <a href="/cookies.html">Cookies</a>  </div>
+<div class="choosen"> <a href="/dynamic.html">Dynamic Content</a> </div>
+<div class=""> <a href="/embed.html">Embedding Yaws</a></div>
+<div class=""> <a href="/upload0.html">File Upload</a> </div>
+<div class=""> <a href="/form.html">Forms</a> </div>
+<div class=""> <a href="/haxe_intro.html">haXe Remoting</a></div>
+<div class=""> <a href="/pcookie.html">Persistent Cookies</a> </div>
+<div class=""> <a href="/query.html">Query Part of URL</a></div>
+<div class=""> <a href="/rebar_release.html">Rebar Releases</a></div>
+<div class=""> <a href="/redirect.html">Redirect</a> </div>
+<div class=""> <a href="/server_sent_events.html">Server-Sent Events</a> </div>
+<div class=""> <a href="/ssi.html">Server Side Includes</a> </div>
+<div class=""> <a href="/simple.html">Simple</a> </div>
+<div class=""> <a href="/soap_intro.html">SOAP with Yaws</a></div>
+<div class=""> <a href="/stream.html">Streaming Data</a> </div>
+<div class=""> <a href="/websockets.html">Web Sockets</a> </div>
+<a href="/shoppingcart/index.html">Tiny Shopping Cart</a>
+<div class=""> <a href="/yapp_intro.html">Yaws Applications (yapps)</a></div>
+<div class=""> <a href="/logger_mod.html">Write Your Own Logger</a></div>
+
+<h4> Misc </h4>
+<div class=""> <a href="/internals.html">Internals</a> </div>
+
+
+
+</div>
+
+
+
+
+
+<div id="entry">
+<h1>Generating Dynamic Content</h1>
+<p>Yaws has very nice support for generating dynamic content on the fly. We use embedded erlang code to generate the content. The Erlang code is separated from the HTML code by  <tt>&lt;erl&gt;</tt> and <tt>&lt;/erl&gt;</tt> markers. For example: </p>
+<div class="box">
+<pre>
+&lt;html&gt;
+ &lt;h1&gt;Foobar&lt;/h1&gt;
+ &lt;erl&gt;
+
+ out(Arg) -&gt;
+    {html, &quot;Funky Stuff&quot;}.
+ &lt;/erl&gt;
+
+ &lt;h1&gt;Baz&lt;/h1&gt;
+
+ &lt;/html&gt;
+</pre></div>
+<p>Is a very small example where we have a HTML document with embedded erlang code. A file which contains embedded erlang code must have the file suffix <tt>.yaws</tt></p><br></br>
+<p>The embedded erlang code can return the different values which will  trigger the yaws webserver to do different things. We list some of the simple         return values here: </p>
+<ul>
+<li>
+<p><tt>{html, DeepCharOrBinaryList}</tt> Which will make the value of <tt>DeepCharOrBinaryList</tt> be substituted into the HTML document.</p></li>
+<li>
+<p><tt>{ehtml, ErlangTermStructure}</tt></p></li></ul>
+<p>It is often more convenient to return erlang terms which are then transformed to HTML instead of returning plain HTML in string form using the <tt>html</tt> tag </p>
+<p>Using the ehtml return value, we can return deep structured  erlang terms that correspond directly to HTML code. For example: </p>
+<div class="box">
+<pre>
+{table, [{bgcolor, &quot;tan&quot;}],
+ {tr, [],
+  [{td, [{width, &quot;70%&quot;}], {p, [{class, &quot;foo&quot;}], &quot;Hi there&quot;}}]}}
+</pre></div>
+<p>Corresponds to the following HTML code: </p>
+<div class="box">
+<pre>
+&lt;table bgcolor=&quot;tan&quot;&gt;
+   &lt;tr&gt;
+      &lt;td width=&quot;70%&quot;&gt;
+        &lt;p class=&quot;foo&quot;&gt; Hi there &lt;/p&gt;
+      &lt;/td&gt;
+   &lt;/tr&gt;
+&lt;/table&gt;
+</pre></div>
+<ul>
+<li>
+<p><tt>{header, Header}</tt> If a <tt>header</tt> structure is returned, an additional header is inserted among the HTTP headers generated by yaws. This is used to insert for example Set-Cookie headers. The <tt>Header</tt> variable must not be newline terminated.</p></li>
+<li>
+<p><tt>{allheaders, Header}</tt> If an <tt>allheaders</tt> structure is returned, all previous headers that have been generated, including those default hedaers generated by yaws itself are erased, and replaced by the headers in <tt>Headers</tt>. The variable <tt>Headers</tt> must be a list of <tt>{header, Str}</tt> tuples. The <tt>Str</tt> must not  be newline terminated. </p></li>
+<li>
+<p><tt>{status, StatusCodeInt} </tt>Is used to force yaws to return a different status code than the               default 200 code.</p></li>
+<li>
+<p><tt>ok</tt> Do nothing.</p></li>
+<li>
+<p><tt>{content, MimeType, Content} </tt>Sets the mime type, that is the Content-Type: header to be <tt>MimeType</tt> The default value is of course "text/html", but applications that generate i.e wml or pdf, must set the Content-Type.  A pdf generating application can for example return the tuple <tt> {content, "application/pdf", PdfContentData} </tt></p></li>
+<li>
+<p><tt>{redirect, URL} </tt> a redirect is issued to the location in <tt> URL </tt></p></li>
+<li>
+<p><tt>{redirect_local, Path} </tt> a redirect is issued to the local server using the same method (http or https) as the incoming request  and the path part of the location header to the value in <tt> Path </tt>.</p></li>
+<li>
+<p><tt>{'EXIT', normal}</tt> which will terminate the   client connection in an uncontrolled way. </p></li>
+<li>
+<p><tt>{ssi, File, Delimiter, Bindings}</tt> Using this construct, we can deep inside a ehtml structure,  return (ssi) Server Side Include content from a file. This construct is further described in <a href="ssi.html">ssi.yaws</a>.</p></li></ul>
+<p>The embedded erlang code can also return a list of the  above values. For example the following value </p>
+<div class="box">
+<pre>
+[{status, 303},
+ {allheaders,
+     [{header, [&quot;Location: &quot;,&quot;http://www.funky.org/&quot;]},
+      {header, [&quot;Set-Cookie: &quot;,&quot;namn=ruler;&quot;]}
+     ]},
+ {html,&quot;&lt;html&gt; Redirected to funky.org &lt;/html&gt;&quot;}
+</pre></div>
+<p>Can be returned if we want to issue a redirect and set a cookie at the same time.</p>
+<p>All possible return values from the out/1 function are documented in the man page for <a href="yman.yaws?page=yaws_api"><tt>yaws_api (5)</tt></a></p>
+<p>It can also be instructive to look at the actual source for the pages we are viewing at this very moment. Here are some of them</p>
+<ul>
+<li>
+<p><a href="index.html">The top page, index.yaws</a> and then the <a href="code.yaws?file=/index.yaws">corresponding source</a></p></li>
+<li>
+<p><a href="dynamic.html">This page, dynamic.yaws</a> and then the <a href="code.yaws?file=/dynamic.yaws">corresponding source</a></p></li></ul>
+<h2>The argument </h2>
+<p>The <tt>out/1</tt> function is supplied with a record argument. The  definition of that record is automatically included in the embedded erlang code and the record definition is: </p>
+<div class="box">
+<pre>-record(arg, {
+	  clisock,        %% the socket leading to the peer client
+	  headers,        %% #headers{} record
+	  req,            %% #http_request{} record
+	  clidata,        %% The client data (as a binary in POST requests)
+	  querydata,      %% Was the URL on the form of ....?query (GET reqs)
+	  docroot,        %% where is the data
+          fullpath,       %% absolute path to requested yaws file
+	  server_path,    %% The normalized server path
+	  pid,            %% pid of the yaws worker process
+	  opaque          %% useful to pass static data
+
+	 }).
+
+
+</pre></div>
+<p>And some of the refered records are defined as:</p>
+<div class="box">
+<pre>
+-record(http_request, {method,
+		       path,
+		       version}).
+
+
+-record(headers, {
+	  connection,
+	  accept,
+	  host,
+	  if_modified_since,
+	  if_match,
+	  if_none_match,
+	  if_range,
+	  if_unmodified_since,
+	  range,
+	  referer,
+	  user_agent,
+	  accept_ranges,
+	  cookie = [],
+	  keep_alive,
+	  content_length}).
+
+</pre></div>
+<p>Each chunk of erlang code will be compiled into a separate module. The module names are automatically generated. If we have functions inside the erlang chunks that we want to call from other chunks or modules, it is possible  to explicitly name the modue that will be used as in: </p>
+<div class="box">
+<pre>
+   &lt;erl module=foobar&gt;
+      out(A) -&gt;
+         io:format('This is the foobar module',[]).
+
+      func() -&gt;
+         i_am_exported_from_foobar.
+    &lt;/erl&gt;</pre></div></div>
+
+
+<div class="logo">
+<img src="/icons/yaws_pb.gif" alt="pbyaws" />
+</div>
+
+
+ <p>
+      <a href="http://validator.w3.org/check?uri=referer"><img
+          src="http://www.w3.org/Icons/valid-xhtml10"
+          alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+    </p>
+
+
+</body>
+</html>
+
+

@@ -1,0 +1,253 @@
+
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+ <meta name="keywords" content="Yaws"/>
+ <title>Yaws</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <link rel="stylesheet" type="text/css" href="stil.css"/>
+ <link rel="shortcut icon" href="/icons/yaws_y.gif" type="image/x-icon"/>
+</head>
+
+<body>
+
+
+
+<div class="logo">
+   <img src="icons/yaws_head.gif" width="600" alt="YAWS"/>
+</div>
+
+
+
+<div id="sidebar">
+<h4> Yaws </h4>
+<div class=""> <a href="index.html" id="index" >Top Page</a> </div>
+<div class=""> <a href="configuration.html" id="configuration">Build Config and Run</a></div>
+<div class=""> <a href="dynamic.html" id="dynamic" >Dynamic Content</a> </div>
+<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="contact.html" id="contact">Contact </a> </div>
+<div class=""> <a href="doc.html" id="doc">Documentation</a>  </div>
+<div class=""> <a href="articles.html" id="resources">Articles</a> </div>
+
+<h4> Examples </h4>
+<div class=""> <a href="/json_intro.html">AJAX/JSON RPC</a></div>
+<div class=""> <a href="/appmods.html">Appmods</a> </div>
+<div class=""> <a href="/arg.html">Arg</a> </div>
+<div class=""> <a href="/privbind.html">Binding to Privileged Ports</a></div>
+<div class=""> <a href="/bindings.html">Bindings</a> </div>
+<div class=""> <a href="/cgi.html">CGI</a></div>
+<div class=""> <a href="/session.html">Cookie Sessions</a>   </div>
+<div class=""> <a href="/cookies.html">Cookies</a>  </div>
+<div class=""> <a href="/dynamic.html">Dynamic Content</a> </div>
+<div class=""> <a href="/embed.html">Embedding Yaws</a></div>
+<div class=""> <a href="/upload0.html">File Upload</a> </div>
+<div class=""> <a href="/form.html">Forms</a> </div>
+<div class=""> <a href="/haxe_intro.html">haXe Remoting</a></div>
+<div class=""> <a href="/pcookie.html">Persistent Cookies</a> </div>
+<div class=""> <a href="/query.html">Query Part of URL</a></div>
+<div class=""> <a href="/rebar_release.html">Rebar Releases</a></div>
+<div class=""> <a href="/redirect.html">Redirect</a> </div>
+<div class=""> <a href="/server_sent_events.html">Server-Sent Events</a> </div>
+<div class=""> <a href="/ssi.html">Server Side Includes</a> </div>
+<div class=""> <a href="/simple.html">Simple</a> </div>
+<div class=""> <a href="/soap_intro.html">SOAP with Yaws</a></div>
+<div class=""> <a href="/stream.html">Streaming Data</a> </div>
+<div class=""> <a href="/websockets.html">Web Sockets</a> </div>
+<a href="/shoppingcart/index.html">Tiny Shopping Cart</a>
+<div class=""> <a href="/yapp_intro.html">Yaws Applications (yapps)</a></div>
+<div class="choosen"> <a href="/logger_mod.html">Write Your Own Logger</a></div>
+
+<h4> Misc </h4>
+<div class=""> <a href="/internals.html">Internals</a> </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div id="entry">
+
+<h1>Write your own logger</h1>
+
+<p>
+To illustrate how to write a module that handles auth and access logging in
+Yaws, we will get a concrete example: How to log the original client IP behind a
+HTTP reverse proxy.
+</p>
+
+<p>
+When Yaws is running behind a HTTP reverse proxy, the source IP of a connection
+is always the proxy's IP address. It is also this IP address that you will find
+in your log files. In this situation, it may be desirable to log the real client
+IP address by extracting it from the "<a
+href="http://en.wikipedia.org/wiki/X-Forwarded-For"
+target="_blank">X-Forwarded-For</a>" header.
+</p>
+
+<p>
+It can easily be done by writting a simple module to handle access and auth
+logging on top of yaws_log. yaws_log is the default logger of Yaws and it can be
+overridden by using the directive "logger_mod" in yaws.conf:
+</p>
+
+<div class="box">
+     <pre>
+&lt;server www.hyber.org&gt;
+        port       = 80
+        listen     = 0.0.0.0
+        logger_mod = simple_logger
+        ...
+&lt;/server&gt;
+
+     </pre>
+</div>
+
+<p>
+In this example, "simple_logger" will be used in place of yaws_log. This module
+must implement the behaviour yaws_logger by exporting the following functions:
+</p>
+
+<div class="box">
+     <pre>
+Module:open_log(ServerName, Type, LogDir) -&gt; {true, State} | false.
+    ServerName :: string()
+    Type       :: access | auth
+    LogDir     :: string()
+    State      :: term()
+
+
+Module:close_log(ServerName, Type, State) -&gt; ok.
+    ServerName :: string()
+    Type       :: access | auth
+    State      :: term()
+
+
+Module:wrap_log(ServerName, Type, State, LogWrapSize) -&gt; NewState.
+    ServerName      :: string()
+    Type            :: access | auth
+    State, NewState :: term()
+
+
+Module:write_log(ServerName, Type, State, Infos) -&gt; ok.
+    ServerName :: string()
+    Type       :: access | auth
+    State      :: term()
+    Infos      :: {Ip,Req,InHdrs,OutHdrs,Time} | %% when type =:= access
+                  {Ip,Path,Item}                 %% when type =:= auth
+
+        Ip      :: inet:ip_address() | inet:hostname() | unknown
+        Req     :: #http_request{}                 %% defined in yaws_api.hrl
+        InHdrs  :: #headers{}                      %% defined in yaws_api.hrl
+        OutHdrs :: #outh{}                         %% defined in yaws.hrl
+        Time    :: non_neg_integer()               %% The time taken to serve the request, in microseconds
+        Path    :: string()                        %% the URI path of the request
+        Item    :: {ok, User} | 403 | {401, Realm} %% the result of an auth request
+
+     </pre>
+</div>
+
+
+<p>
+Back to our example. The only thing we want to do is read the "X-Forwarded-For"
+header to extract the real client IP address. The logging will be delegated to
+yaws_log.
+</p>
+
+<p>
+If the "X-Forwarded-For" header is defined, then the originating IP address of a
+client is the left-most IP address. But, because this header can be falsified,
+we will define a list of trustworthy proxies. For simplicity, we will use a
+macro. Here is our logger:
+</p>
+
+<div class="box">
+     <pre>
+-module(yaws_revproxy_logger).
+
+-behaviour(yaws_logger).
+
+-include_lib(&quot;yaws/include/yaws.hrl&quot;).
+-include_lib(&quot;yaws/include/yaws_api.hrl&quot;).
+
+-export([open_log/3, close_log/3, wrap_log/4, write_log/4]).
+
+-define(REVPROXY_WHITELIST, [{192,168,0,1}, {192,168,0,2}]).
+
+%% ===================================================================
+open_log(ServerName, Type, Dir) -&gt;
+    yaws_log:open_log(ServerName, Type, Dir).
+
+
+close_log(ServerName, Type, State) -&gt;
+    yaws_log:close_log(ServerName, Type, State).
+
+
+wrap_log(ServerName, Type, Data, LogWrapSize) -&gt;
+    yaws_log:wrap_log(ServerName, Type, Data, LogWrapSize).
+
+
+write_log(ServerName, auth, State, {Ip, Path, Item}) -&gt;
+    yaws_log:write_log(ServerName, auth, State, {Ip, Path, Item});
+write_log(ServerName, access, State, {Ip, Req, InH, OutH, Time}) -&gt;
+    RealIp = real_client_ip(Ip, ?REVPROXY_WHITELIST, InH),
+    yaws_log:write_log(ServerName, access, State, {RealIp, Req, InH, OutH, Time}).
+
+
+real_client_ip(Ip, ProxyWhitelist, Hdrs) -&gt;
+    case lists:member(Ip, ProxyWhitelist) of
+        true -&gt;
+            FwdFor = Hdrs#headers.x_forwarded_for,
+            case yaws:split_sep(FwdFor, $,) of
+                [FirstIp|_Proxies] -&gt;
+                    %% We might check if the last proxy is the remote
+                    %% address of the request, i.e hd(_Proxies) =:= Ip.
+                    case inet_parse:address(FirstIp) of
+                        {error, _}     -&gt; unknown;
+                        {ok, ClientIp} -&gt; ClientIp
+                    end;
+                [] -&gt;
+                    Ip
+            end;
+        false -&gt;
+            Ip
+    end.
+
+     </pre>
+</div>
+
+<p>
+Now, we just need to compile this module and update yaws.conf accordingly.
+</p>
+
+<p>
+<i>Note: In previous version of Yaws, we could use
+"x_forwarded_for_log_proxy_whitelist" to do the same thing. This parameter is
+now deprecated.</i>
+</p>
+</div>
+<div class="logo">
+<img src="/icons/yaws_pb.gif" alt="pbyaws" />
+</div>
+
+
+ <p>
+      <a href="http://validator.w3.org/check?uri=referer"><img
+          src="http://www.w3.org/Icons/valid-xhtml10"
+          alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+    </p>
+
+
+</body>
+</html>
+
+
+

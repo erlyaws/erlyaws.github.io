@@ -1,0 +1,291 @@
+
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+ <meta name="keywords" content="Yaws"/>
+ <title>Yaws</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <link rel="stylesheet" type="text/css" href="stil.css"/>
+ <link rel="shortcut icon" href="/icons/yaws_y.gif" type="image/x-icon"/>
+</head>
+
+<body>
+
+
+
+<div class="logo">
+   <img src="icons/yaws_head.gif" width="600" alt="YAWS"/>
+</div>
+
+
+
+<div id="sidebar">
+<h4> Yaws </h4>
+<div class=""> <a href="index.html" id="index" >Top Page</a> </div>
+<div class=""> <a href="configuration.html" id="configuration">Build Config and Run</a></div>
+<div class=""> <a href="dynamic.html" id="dynamic" >Dynamic Content</a> </div>
+<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="contact.html" id="contact">Contact </a> </div>
+<div class=""> <a href="doc.html" id="doc">Documentation</a>  </div>
+<div class=""> <a href="articles.html" id="resources">Articles</a> </div>
+
+<h4> Examples </h4>
+<div class=""> <a href="/json_intro.html">AJAX/JSON RPC</a></div>
+<div class=""> <a href="/appmods.html">Appmods</a> </div>
+<div class=""> <a href="/arg.html">Arg</a> </div>
+<div class=""> <a href="/privbind.html">Binding to Privileged Ports</a></div>
+<div class=""> <a href="/bindings.html">Bindings</a> </div>
+<div class=""> <a href="/cgi.html">CGI</a></div>
+<div class=""> <a href="/session.html">Cookie Sessions</a>   </div>
+<div class=""> <a href="/cookies.html">Cookies</a>  </div>
+<div class=""> <a href="/dynamic.html">Dynamic Content</a> </div>
+<div class=""> <a href="/embed.html">Embedding Yaws</a></div>
+<div class=""> <a href="/upload0.html">File Upload</a> </div>
+<div class=""> <a href="/form.html">Forms</a> </div>
+<div class=""> <a href="/haxe_intro.html">haXe Remoting</a></div>
+<div class="choosen"> <a href="/pcookie.html">Persistent Cookies</a> </div>
+<div class=""> <a href="/query.html">Query Part of URL</a></div>
+<div class=""> <a href="/rebar_release.html">Rebar Releases</a></div>
+<div class=""> <a href="/redirect.html">Redirect</a> </div>
+<div class=""> <a href="/server_sent_events.html">Server-Sent Events</a> </div>
+<div class=""> <a href="/ssi.html">Server Side Includes</a> </div>
+<div class=""> <a href="/simple.html">Simple</a> </div>
+<div class=""> <a href="/soap_intro.html">SOAP with Yaws</a></div>
+<div class=""> <a href="/stream.html">Streaming Data</a> </div>
+<div class=""> <a href="/websockets.html">Web Sockets</a> </div>
+<a href="/shoppingcart/index.html">Tiny Shopping Cart</a>
+<div class=""> <a href="/yapp_intro.html">Yaws Applications (yapps)</a></div>
+<div class=""> <a href="/logger_mod.html">Write Your Own Logger</a></div>
+
+<h4> Misc </h4>
+<div class=""> <a href="/internals.html">Internals</a> </div>
+
+
+
+</div>
+
+
+
+
+
+
+
+<div id="entry">
+
+<h1>Persistent Cookies</h1>
+  <p>
+    We saw in the first <a href="cookies.html">cookie</a> example, how we
+    assigned a special erlang process to handle each session.
+    The cookie has an expiry date, and the correct thing would be to let the
+    handling process live as long as the cookie is valid. This is not a good option.
+    A better option is to store cookie in a persistant storage. This can be an
+    ets table or a dets table. If we choose an ets table, the cookies will disappear
+    when the yaws server is restarted, whereas if we choose a dets table,
+    the cookies will survive daemon restarts. What to choose depends on the
+    type of cookie information we have.
+  </p>
+
+  <p>
+    The yaws code in
+    <a href="setpcookie.html">setpcookie.yaws</a> sets the cookie in the browser.
+  </p>
+
+  <p>And the yaws code in <a href="readpcookie.html">readpcookie.yaws</a>
+    will read the cookie
+  </p>
+
+  <p>
+    Let's show some code. To set the cookie we we have:
+  </p>
+
+<br><br>
+<div class="box"> <pre>
+
+&lt;erl&gt;
+-export([pserv/0]).
+
+ensure_pcookie_server() -&gt;
+    case whereis(pcookie_server) of
+        undefined -&gt;
+            proc_lib:start(?MODULE, pserv,[]);
+        _ -&gt;
+            ok
+    end.
+
+pserv() -&gt;
+    catch begin
+              register(pcookie_server, self()),
+              T = ets:new(pcookies, [set, public,
+                                     named_table]),
+              ets:insert(T, {counter, 0})
+          end,
+    proc_lib:init_ack(ok),
+    pserv_loop().
+
+pserv_loop() -&gt;
+    receive
+        X -&gt;
+            pserv_loop()
+    end.
+
+setcookie(A) -&gt;
+    Num = ets:update_counter(pcookies, counter, 1),
+    Data = {(A#arg.headers)#headers.user_agent,
+            calendar:local_time(),
+            inet:peername(A#arg.clisock)},
+    ets:insert(pcookies, {{cookie, Num}, Data}),
+    yaws_api:set_cookie(&quot;pfoobar&quot;,integer_to_list(Num),
+                        [{path,&quot;/&quot;}]).
+
+
+
+out(A) -&gt;
+    ensure_pcookie_server(),
+    H = A#arg.headers,
+    C = H#headers.cookie,
+    case C of
+        [Cookie|_] -&gt;
+            case string:tokens(Cookie, [$=]) of
+                [&quot;pfoobar&quot;, NumStr] -&gt;
+                    Num = list_to_integer(NumStr),
+                    %% cookie allready set
+                    case ets:lookup(pcookies, {c, Num}) of
+                        [{cookie, Data}] -&gt;
+                            ok;  %% cookie already set
+                        [] -&gt;
+                            setcookie(A)
+                    end;
+                _ -&gt;
+                    setcookie(A)
+            end;
+        _ -&gt;
+            setcookie(A)
+    end.
+&lt;/erl&gt;
+
+
+&lt;erl&gt;
+
+
+out(A) -&gt; {ssi, &quot;TAB.inc&quot;, [],[]}.
+&lt;/erl&gt;
+
+&lt;div id=&quot;entry&quot;&gt;
+
+
+
+
+
+&lt;h2&gt; Set persistent cookie &lt;/h2&gt;
+
+&lt;p&gt;This is the page that set a persistent cookie in
+the browser.
+&lt;a href=&quot;readpcookie.yaws&quot;&gt;readpcookie.yaws&lt;/a&gt; will
+read the cookie and report persistent information.
+
+
+
+&lt;/div&gt;
+
+
+&lt;erl&gt;
+out(A) -&gt; {ssi, &quot;END2&quot;,[],[]}.
+&lt;/erl&gt;
+
+
+</pre></div>
+<br>
+
+
+
+<p>
+And to read the cookie, we have the following code:
+</p>
+
+<br><br>
+<div class="box"> <pre>
+&lt;html&gt;
+
+&lt;h2&gt; Read persistent cookie &lt;/h2&gt;
+
+&lt;erl&gt;
+
+to_integer(S) -&gt;
+    list_to_integer(string:strip(S, both)).
+
+out(A) -&gt;
+    H=A#arg.headers,
+    C = H#headers.cookie,
+    L=case yaws_api:find_cookie_val(&quot;pfoobar&quot;, C) of
+          [] -&gt;
+              f(&quot;&lt;p&gt; No cookie set from the browser, need to &quot;
+                &quot;visit &lt;a href=\&quot;setpcookie.yaws\&quot;&gt;setpcookie.yaws&lt;/a&gt; &quot;
+                &quot;to set the cookie first &lt;/p&gt;~n&quot;, []);
+          NumStr -&gt;
+              Num = to_integer(NumStr),
+              case ets:lookup(pcookies, {cookie,Num}) of
+                  [{{cookie, Num}, Data}] -&gt;
+                      f(&quot;&lt;p&gt; Yes, I read your cookie:it is ~p~n &quot;
+                        &quot;Your persistent info is ~n&quot;
+                        &quot;&lt;pre&gt;~n~p~n&lt;/pre&gt; &lt;/p&gt;~n&quot;, [NumStr, Data]);
+                  [] -&gt;
+                      f(&quot;&lt;p&gt; You had a cookie,but the data is gone &lt;/p&gt;&quot;,[])
+              end
+      end,
+    {html, L}.
+
+&lt;/erl&gt;
+
+
+&lt;p&gt;
+The code to read the cookie, is simple, we get the cookie passed to the yaws
+code in the #arg structure which is the argument supplied to the out/1 function.
+The code is:&lt;/p&gt;
+
+&lt;erl&gt;
+out(A) -&gt;
+    {ok, B} = file:read_file(A#arg.docroot ++ &quot;/readpcookie.yaws&quot;),
+       {ehtml,
+        {'div', [{class, &quot;box&quot;}],
+        {pre,[], B}}}.
+&lt;/erl&gt;
+
+
+&lt;/html&gt;
+
+
+
+
+
+
+
+
+</pre></div>
+<br>
+
+
+
+
+</div>
+
+
+<div class="logo">
+<img src="/icons/yaws_pb.gif" alt="pbyaws" />
+</div>
+
+
+ <p>
+      <a href="http://validator.w3.org/check?uri=referer"><img
+          src="http://www.w3.org/Icons/valid-xhtml10"
+          alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+    </p>
+
+
+</body>
+</html>
+
+

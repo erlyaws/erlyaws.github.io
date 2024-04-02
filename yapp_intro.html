@@ -1,0 +1,178 @@
+
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+ <meta name="keywords" content="Yaws"/>
+ <title>Yaws</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <link rel="stylesheet" type="text/css" href="stil.css"/>
+ <link rel="shortcut icon" href="/icons/yaws_y.gif" type="image/x-icon"/>
+</head>
+
+<body>
+
+
+
+<div class="logo">
+   <img src="icons/yaws_head.gif" width="600" alt="YAWS"/>
+</div>
+
+
+
+<div id="sidebar">
+<h4> Yaws </h4>
+<div class=""> <a href="index.html" id="index" >Top Page</a> </div>
+<div class=""> <a href="configuration.html" id="configuration">Build Config and Run</a></div>
+<div class=""> <a href="dynamic.html" id="dynamic" >Dynamic Content</a> </div>
+<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="contact.html" id="contact">Contact </a> </div>
+<div class=""> <a href="doc.html" id="doc">Documentation</a>  </div>
+<div class=""> <a href="articles.html" id="resources">Articles</a> </div>
+
+<h4> Examples </h4>
+<div class=""> <a href="/json_intro.html">AJAX/JSON RPC</a></div>
+<div class=""> <a href="/appmods.html">Appmods</a> </div>
+<div class=""> <a href="/arg.html">Arg</a> </div>
+<div class=""> <a href="/privbind.html">Binding to Privileged Ports</a></div>
+<div class=""> <a href="/bindings.html">Bindings</a> </div>
+<div class=""> <a href="/cgi.html">CGI</a></div>
+<div class=""> <a href="/session.html">Cookie Sessions</a>   </div>
+<div class=""> <a href="/cookies.html">Cookies</a>  </div>
+<div class=""> <a href="/dynamic.html">Dynamic Content</a> </div>
+<div class=""> <a href="/embed.html">Embedding Yaws</a></div>
+<div class=""> <a href="/upload0.html">File Upload</a> </div>
+<div class=""> <a href="/form.html">Forms</a> </div>
+<div class=""> <a href="/haxe_intro.html">haXe Remoting</a></div>
+<div class=""> <a href="/pcookie.html">Persistent Cookies</a> </div>
+<div class=""> <a href="/query.html">Query Part of URL</a></div>
+<div class=""> <a href="/rebar_release.html">Rebar Releases</a></div>
+<div class=""> <a href="/redirect.html">Redirect</a> </div>
+<div class=""> <a href="/server_sent_events.html">Server-Sent Events</a> </div>
+<div class=""> <a href="/ssi.html">Server Side Includes</a> </div>
+<div class=""> <a href="/simple.html">Simple</a> </div>
+<div class=""> <a href="/soap_intro.html">SOAP with Yaws</a></div>
+<div class=""> <a href="/stream.html">Streaming Data</a> </div>
+<div class=""> <a href="/websockets.html">Web Sockets</a> </div>
+<a href="/shoppingcart/index.html">Tiny Shopping Cart</a>
+<div class="choosen"> <a href="/yapp_intro.html">Yaws Applications (yapps)</a></div>
+<div class=""> <a href="/logger_mod.html">Write Your Own Logger</a></div>
+
+<h4> Misc </h4>
+<div class=""> <a href="/internals.html">Internals</a> </div>
+
+
+
+</div>
+
+
+
+
+
+<div id="entry">
+<h1>Yaws applications - Yapps</h1>
+<p>Yaws applications, Yapps, are actually ordinary Erlang/OTP applications with some optional information in their .app files and the web pages in the priv/docroot directory as default. The Yaws applications handler takes care of adding, and removing, the applications into a running server.  When anyone access the server with an URL that matches the path for an  added application, the docroot will be temporarily switched to where the web  pages for that application are located.</p>
+<h2>Using the application handler</h2>
+<h3>Installing</h3>
+<p>The application handler is named just yapp and is located in the directory yaws/applications/yapp. Yaws itself should have been built first, then in the yapp directory we do
+<ol>
+<li>
+<pre>make</pre></li>
+<li>
+<pre>make docs</pre> - if we want documentation</li>
+<li>
+<pre>make install</pre> - unless yaws was installed with make local_install</li></ol></p>
+<h3>Setting up yaws.conf</h3>
+<p>First we include the ebin directory of the yapp handler application by adding the line </p>
+<div class="box">
+<pre>ebin_dir = /&lt;yaws_root&gt;/{applications,lib}/yapp/ebin</pre></div>
+<p>The "applications" part is used for a local_installed Yaws, and "lib" for a real installed one. Then we make sure that the yapp handler  application is started when Yaws is started, by using the runmod directive</p>
+<div class="box">
+<pre>runmod = yapp</pre></div>
+<p>For every virtual server that we want to use yapps we add yapp as an arg_rewrite_mod and set the opaque parameter yapp_server_id to a unique name.</p>
+<div class="box">
+<pre>
+&lt;server myexternalserver&gt;
+        port = 8000
+        listen = 0.0.0.0
+        docroot = /yawsdocrootpath/www
+        arg_rewrite_mod = yapp
+        &lt;opaque&gt;
+           yapp_server_id = edo
+        &lt;/opaque&gt;
+&lt;/server&gt;
+</pre></div>
+<p>The web applications that are configured in the Yapp registry will be loaded into Yaws configuration when the yapp application is started. A prerequisite is that the applications are found in the Erlang code loader path. There is also an option to define yapps in yaws.conf for every server directly by using the opaque parameter bootstrap_yapps = webapp1, webapp2 etc. </p>
+<p>For instance the yapp handler application (named yapp) is a yapp in itself, got it?, that provides a web gui to list active yapps and add/remove yapps from the registry. But since we can not add itself to the registry before it is added we have to bootstrap into the server when Yaws is started. </p>
+<div class="box">
+<pre>
+&lt;server myinternalserver&gt;
+        port = 8001
+        listen = 0.0.0.0
+        docroot = /docrootpath/www
+        arg_rewrite_mod = yapp
+        &lt;opaque&gt;
+           yapp_server_id = ido
+           bootstrap_yapps = yapp
+        &lt;/opaque&gt;
+&lt;/server&gt;</pre></div>
+<h3>Executing</h3>
+<p>The current default Yapp registry implementation uses Mnesia, we have made it easy to plug in other future registry implementations by configuring the yapp.app file, but Mnesia is recommended to be future proof for clustered application servers. In order to use mnesia one has to prepare a schema, we start an erlang shell with the same node name as Yaws is using: </p>
+<p>
+<pre>erl -sname node_name
+1> mnesia:create_schema([node()]).</pre></p>
+<p>(we can leave out the -sname options, then the mnesia schema name will be "nonode@nohost") then we exit and start yaws with the same name: 
+<pre>yaws -sname node_name</pre></p>
+<p>Now we can access the yapp handler web console from a browser with url:
+<pre>http://myinternalserver:8001/yapp/</pre></p>
+<h2>Making yapps</h2>
+<p>In order to make a "yapp" we need to know how to make an ordinary Erlang application, that is we will need a directory layout as specified by the <a href="http://www.erlang.org/doc/design_principles/des_princ.html">design principles</a> and a proper appname.app file in the ebin directory. Yaws itself or yapp are standard applications and can serve as introductionary examples. </p>
+<h3>Internal paths</h3>
+<p>Making paths to other documents in the same web application using root paths like href="/doc2.html" will not work since a yapp is always below the top. Instead use relative paths href="doc2.html" or use the prepath library function in any .yaws file: href=yapp:prepath(A) ++ "doc2.html", where A is a <code>#arg</code> record.</p>
+<h3>Appmods</h3>
+<p>The yapp handler takes care of throwing in "private" appmods for a yapp when it is accessed. The appmods modules are put in the applications ebin directory as any other Erlang module and configured in the .app file with the the environment variable yapp_appmods. For instance; if we have a yapp named yappx with root path "/yappx" and add: </p>
+<div class="box">
+<pre>
+  {env, [
+         {yapp_appmods,[{&quot;ctrl&quot;,yappx_controller}]}
+        ]},
+</pre></div>
+<p>to the env part in the yappx.app file, an access to the URL http://servername/yappx/ctrl will cause a call to the yappx_controller:out/1 function, while http://servername/yappy/ctrl will not do it. </p>
+<h3>Opaque variables</h3>
+<p>In a similar way the yapp handler adds "private" opaques for a yapp with the the environment variable yapp_opaque. As an example <a href="http://erlyweb.org/">ErlyWeb </a>applications uses both appmods and opaques in yaws.conf. These can be put in the  .app file instead if one makes a yapp of it:</p>
+<div class="box">
+<pre>
+ {application, myapp1,
+ [{description,&quot;myapp1 is an erlyweb yapp&quot;},
+  {vsn,&quot;0.1&quot;},
+  {modules,[]},
+  {registered, []},
+%  {mod,{myapp1_app,[]}}, %% Only needed if the application needs to be started
+  {env, [
+         {yapp_docroot,&quot;www&quot;},
+         {yapp_appmods,[{&quot;erlyweb&quot;,erlyweb}]},
+         {yapp_opaque,[{&quot;appname&quot;,&quot;myapp1&quot;}]}
+        ]},
+  {applications,[kernel,stdlib]}]}.
+</pre></div>
+<p>Also note that the docroot is www instead of the default priv/docroot in ErlyWeb applications.</p>
+<h2>Problems</h2>
+<p>Embedded ssi directives in ehtml parts do not work.</p></div><div class="logo">
+<img src="/icons/yaws_pb.gif" alt="pbyaws" />
+</div>
+
+
+ <p>
+      <a href="http://validator.w3.org/check?uri=referer"><img
+          src="http://www.w3.org/Icons/valid-xhtml10"
+          alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+    </p>
+
+
+</body>
+</html>
+
+

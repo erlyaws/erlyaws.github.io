@@ -25,7 +25,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
 <div id="sidebar">
 <h4> Yaws </h4>
-<div class="choosen"> <a href="index.html" id="index" >Top Page</a> </div>
+<div class=""> <a href="index.html" id="index" >Top Page</a> </div>
 <div class=""> <a href="configuration.html" id="configuration">Build Config and Run</a></div>
 <div class=""> <a href="dynamic.html" id="dynamic" >Dynamic Content</a> </div>
 <div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
@@ -40,7 +40,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 <div class=""> <a href="/privbind.html">Binding to Privileged Ports</a></div>
 <div class=""> <a href="/bindings.html">Bindings</a> </div>
 <div class=""> <a href="/cgi.html">CGI</a></div>
-<div class=""> <a href="/session.html">Cookie Sessions</a>   </div>
+<div class="choosen"> <a href="/session.html">Cookie Sessions</a>   </div>
 <div class=""> <a href="/cookies.html">Cookies</a>  </div>
 <div class=""> <a href="/dynamic.html">Dynamic Content</a> </div>
 <div class=""> <a href="/embed.html">Embedding Yaws</a></div>
@@ -72,26 +72,30 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
 
 
+
 <div id="entry">
-<h1>Yaws</h1>
-<p>Yaws is a HTTP high perfomance 1.1 webserver particularly well suited for dynamic-content web applications. Two
-         separate modes of operations are supported:</p>
-<ul>
-<li>
-<p>Standalone mode where Yaws runs as a regular webserver daemon. This is the default mode.</p></li>
-<li>
-<p>Embedded mode where Yaws runs as an embedded webserver in another Erlang application.</p></li></ul>
-<p>Yaws is entirely written in <a href="http://www.erlang.org">Erlang</a>, and furthermore it is a multithreaded webserver where one Erlang lightweight process is used to handle each client.</p>
-<p>The main advantages of Yaws compared to other Web technologies are performance and elegance. The performance comes from the  underlying Erlang system and its ability to handle concurrent  processes in an efficent way. Its elegance comes from Erlang as well. Web applications don't have to be written in ugly ad hoc languages.</p>
-<h2>erlyaws.github.io</h2>
-<p>The www page for Yaws is <a href="http://erlyaws.github.io">erlyaws.github.io</a>. The documentation, examples as well as releases can be found there, and of course, <a href="http://erlyaws.github.io">erlyaws.github.io</a> is itself powered by Yaws.</p>
-<p>Code is on : <a href="http://github.com/erlyaws/yaws">http://github.com/erlyaws/yaws</a></p>
-<p>Travis test results at :<a href="https://github.com/erlyaws/yaws/actions/workflows/main.yml">https://github.com/erlyaws/yaws/actions/workflows/main.yml</a></p>
-<p>A mailing list exists at: <a href="https://lists.sourceforge.net/lists/listinfo/erlyaws-list">https://lists.sourceforge.net/lists/listinfo/erlyaws-list</a></p>
-<p>A lot of excellent engineers have contributed to Yaws over the years, we keep a list of all <a href="contributors.txt">contributors</a></p>
-<p>A high resolution logo created by Tomas Selander exists at <a href="yaws.eps">yaws.eps</a></p>
-<h2>News</h2>
-<p>To see all the most recent changes and activity in Yaws development, please visit the <a href="https://github.com/erlyaws/yaws">Yaws github repository</a>.</p></div><div class="logo">
+
+
+<h1>The session server</h1>
+<p>
+The Yaws session server is ideal (and recommended)
+for maintaining cookie state
+in a server side application.
+</p>
+
+<p>The code in <a href="code.yaws?file=/session1.html">session1.yaws</a>
+  shows a minimalistic way to handle sessions.
+  To run it click <a href="session1.html">here</a>
+</p>
+
+<p>
+The actual session API is documented in the man page for yaws_api.
+</p>
+
+</div>
+
+
+<div class="logo">
 <img src="/icons/yaws_pb.gif" alt="pbyaws" />
 </div>
 
@@ -105,7 +109,5 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
 </body>
 </html>
-
-
 
 

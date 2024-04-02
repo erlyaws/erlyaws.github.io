@@ -1,0 +1,343 @@
+
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+ <meta name="keywords" content="Yaws"/>
+ <title>Yaws</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <link rel="stylesheet" type="text/css" href="stil.css"/>
+ <link rel="shortcut icon" href="/icons/yaws_y.gif" type="image/x-icon"/>
+</head>
+
+<body>
+
+
+
+<div class="logo">
+   <img src="icons/yaws_head.gif" width="600" alt="YAWS"/>
+</div>
+
+
+
+<div id="sidebar">
+<h4> Yaws </h4>
+<div class=""> <a href="index.html" id="index" >Top Page</a> </div>
+<div class=""> <a href="configuration.html" id="configuration">Build Config and Run</a></div>
+<div class=""> <a href="dynamic.html" id="dynamic" >Dynamic Content</a> </div>
+<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="contact.html" id="contact">Contact </a> </div>
+<div class=""> <a href="doc.html" id="doc">Documentation</a>  </div>
+<div class=""> <a href="articles.html" id="resources">Articles</a> </div>
+
+<h4> Examples </h4>
+<div class="choosen"> <a href="/json_intro.html">AJAX/JSON RPC</a></div>
+<div class=""> <a href="/appmods.html">Appmods</a> </div>
+<div class=""> <a href="/arg.html">Arg</a> </div>
+<div class=""> <a href="/privbind.html">Binding to Privileged Ports</a></div>
+<div class=""> <a href="/bindings.html">Bindings</a> </div>
+<div class=""> <a href="/cgi.html">CGI</a></div>
+<div class=""> <a href="/session.html">Cookie Sessions</a>   </div>
+<div class=""> <a href="/cookies.html">Cookies</a>  </div>
+<div class=""> <a href="/dynamic.html">Dynamic Content</a> </div>
+<div class=""> <a href="/embed.html">Embedding Yaws</a></div>
+<div class=""> <a href="/upload0.html">File Upload</a> </div>
+<div class=""> <a href="/form.html">Forms</a> </div>
+<div class=""> <a href="/haxe_intro.html">haXe Remoting</a></div>
+<div class=""> <a href="/pcookie.html">Persistent Cookies</a> </div>
+<div class=""> <a href="/query.html">Query Part of URL</a></div>
+<div class=""> <a href="/rebar_release.html">Rebar Releases</a></div>
+<div class=""> <a href="/redirect.html">Redirect</a> </div>
+<div class=""> <a href="/server_sent_events.html">Server-Sent Events</a> </div>
+<div class=""> <a href="/ssi.html">Server Side Includes</a> </div>
+<div class=""> <a href="/simple.html">Simple</a> </div>
+<div class=""> <a href="/soap_intro.html">SOAP with Yaws</a></div>
+<div class=""> <a href="/stream.html">Streaming Data</a> </div>
+<div class=""> <a href="/websockets.html">Web Sockets</a> </div>
+<a href="/shoppingcart/index.html">Tiny Shopping Cart</a>
+<div class=""> <a href="/yapp_intro.html">Yaws Applications (yapps)</a></div>
+<div class=""> <a href="/logger_mod.html">Write Your Own Logger</a></div>
+
+<h4> Misc </h4>
+<div class=""> <a href="/internals.html">Internals</a> </div>
+
+
+
+</div>
+
+
+
+
+
+<div id="entry">
+<h1>AJAX through JSON RPC</h1>
+<p><i>Note: this documentation used to refer to the module 'yaws_jsonrpc', but that module was deprecated in favor of 'yaws_rpc', which handles JSON RPC, haXe and SOAP remoting. For more specific information about SOAP, refer to <a href="/soap_intro.html">the SOAP page.</a></i></p>
+<p>The Yaws JSON-RPC binding is a way to have JavaScript code in the browser evaluate a remote procedure call (RPC) in the Yaws server. JSON itself as described at <a href="http://www.json.org/">http://www.json.org/ </a>is basically a simple marshaling format which can be used from a variety of different programming languages, and naturally it's completely straightforward to implement in JavaScript itself. JSON-RPC version 2.0, the version Yaws supports, is described here:</p>
+<p><a href="http://groups.google.com/group/json-rpc/web/json-rpc-2-0">http://groups.google.com/group/json-rpc/web/json-rpc-2-0</a></p>
+<p>The Yaws JSON-RPC implementation consist of JavaScript clients and a server side library that must be explicitly invoked by Erlang code in a .yaws page, appmod, etc.</p>
+<p>It is not particularly easy to show and explain an AJAX setup through JSON-RPC, but here is an attempt:</p>
+<p>First we have an HTML page which:</p>
+<ol>
+<li>
+<p>Includes the client side of the JSON library. The library is included in the Yaws distribution and it is found under <a href="https://github.com/erlyaws/yaws/blob/master/www/jsolait/jsolait.js">"www/jsolait/jsolait.js"</a>.</p></li>
+<li>
+<p>Second, the HTML code defines the name of a method, i.e. the name of a server-side function that shall be called by the client side JavaScript code.</p></li>
+<li>
+<p>Finally the HTML code defines a FORM that's used to invoke the RPC. This is just a really simple example, really any JavaScript code can invoke any RPC in more interesting scenarios than submitting a form.</p></li></ol>
+<p>The HTML code appears as shown below:</p>
+<div class="box">
+<pre>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Testing html-json library&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;script src=&quot;jsolait/jsolait.js&quot;&gt;&lt;/script&gt;
+  &lt;script&gt;
+
+var serviceURL = &quot;json_sample.yaws&quot;;
+var methods = [ &quot;test1&quot;, &quot;errortest&quot; ];
+
+var jsonrpc = imprt(&quot;jsonrpc&quot;);
+var service = new jsonrpc.ServiceProxy(serviceURL, methods);
+
+function test() {
+    try {
+     foo = document.getElementById('foo').value;
+     bar = document.getElementById('bar').value;
+     document.getElementById('result').innerHTML =
+       &quot;&lt;PRE&gt;&quot; + service.test1(foo, bar) + &quot;&lt;/PRE&gt;&quot;;
+     } catch(e) {
+        alert(e);
+     }
+     return false;
+}
+
+function errortest() {
+    try {
+     document.getElementById('failure').innerHTML =
+       &quot;&lt;PRE&gt;&quot; + service.errortest() + &quot;&lt;/PRE&gt;&quot;;
+     } catch(e) {
+     document.getElementById('failure').innerHTML =
+        &quot;&lt;PRE&gt;&quot; + e + &quot;&lt;/PRE&gt;&quot;;
+     }
+     return false;
+}
+
+  &lt;/script&gt;
+  &lt;body&gt;
+    &lt;form action=&quot;&quot; method=&quot;post&quot; onSubmit=&quot;return test()&quot;&gt;
+      &lt;div id=&quot;result&quot;&gt;
+      &lt;/div&gt;
+      &lt;p&gt;
+        First Argument:  &lt;input id=&quot;foo&quot; /&gt;
+      &lt;/p&gt;
+      &lt;p&gt;
+        Second Argument: &lt;input id=&quot;bar&quot;/&gt;
+      &lt;/p&gt;
+      &lt;p&gt;
+        &lt;input type=&quot;submit&quot; value=&quot;Do JSON-RPC call&quot;/&gt;
+      &lt;/p&gt;
+    &lt;/form&gt;
+    &lt;form action=&quot;&quot; method=&quot;post&quot; onSubmit=&quot;return errortest()&quot;&gt;
+      &lt;p&gt;
+        &lt;input type=&quot;submit&quot; value=&quot;Do JSON-RPC call expected to fail&quot;/&gt;
+      &lt;/p&gt;
+      &lt;div id=&quot;failure&quot;&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</pre></div>
+<p>This HTML code resides in file <a href="json_sample.html">json_sample.html</a> and it is the HTML code that is the AJAX GUI.</p>
+<p>Following that we need to take a look at json_sample.yaws  (shown below), which is the "serviceURL" according to the JavaScript code. This code defines the function to be called. Remember that the JavaScript code defined one method, called "test1"; this information will be passed to the serviceURL. The code looks like:</p>
+<div class="box">
+<pre>&lt;erl module=sample_mod&gt;
+-compile(export_all).
+
+out(A) -&gt;
+    Peer = case yaws_api:get_sslsocket(A#arg.clisock) of
+               {ok, SslSocket} -&gt;
+                   ssl:peername(SslSocket);
+               _ -&gt;
+                   inet:peername(A#arg.clisock)
+           end,
+
+    {ok,{IP,_}} = Peer,
+    A2=A#arg{state = [{ip, IP}]},
+    yaws_rpc:handler_session(A2, {?MODULE, counter}).
+
+
+
+counter([{ip, IP}] = _State, {call, errortest, Value} = _Request, Session) -&gt;
+    io:format(&quot;Request = ~p~n&quot;, [_Request]),
+    { false, { error, &quot;Expected failure&quot; } };
+
+counter([{ip, IP}] = _State, {call, test1, Value} = _Request, Session) -&gt;
+    io:format(&quot;Request = ~p~n&quot;, [_Request]),
+    IPStr = io_lib:format(&quot;Client ip is  ~p~n&quot; , [ IP ]),
+    OldSession = io_lib:format(&quot;Request is: ~p~nOld session value &quot;
+                               &quot;is ~p~n&quot;, [ _Request, Session ]),
+
+    case Session of
+        undefined -&gt; % create new session
+            NewSession = 0;
+        10 -&gt;        % reset session after reaching 10
+            NewSession = undefined;
+        N -&gt;
+            NewSession = N + 1
+    end,
+
+    NewVal = io_lib:format(&quot;New session value is ~p ~n&quot;, [ NewSession ]),
+    Str = lists:flatten([IPStr,OldSession,NewVal]),
+    {true, 0, NewSession, {response,  Str }}.
+
+
+&lt;/erl&gt;
+</pre></div>
+<p>The two important lines on the server side are</p>
+<ol>
+<li>
+<pre>yaws_rpc:handler_session(A2, {sample_mod, counter}).</pre></li>
+<li>
+<pre>counter([{ip, IP}] = _State, {call, test1, Value} = _Request, Session)</pre></li></ol>
+<p>The first line tells Yaws to forward all JSON-RPC methods to the  "counter" function in the "sample_mod" module. The second line is the head of the counter function that will be called when the client invokes a method called 'test1'. We would duplicate this line with a different name than 'test1' for each RPC function we wish to implement. Note that the first atom in the request tuple will either be 'call' or 'notification' to indicate the type of request. As per the <a href="http://groups.google.com/group/json-rpc/web/json-rpc-2-0">JSON-RPC 2.0 specification</a>, a 'call' is a regular request-reply while a 'notification' is a one-way message that does not have a corresponding reply.</p>
+<p>On the client side we have</p>
+<div class="box">
+<pre>
+var methods = [ &quot;test1&quot; ];
+var jsonrpc = imprt(&quot;jsonrpc&quot;);
+var service = new jsonrpc.ServiceProxy(serviceURL, methods);
+</pre></div>
+<p>This registers the Yaws page with the JSON-RPC handler and gives it a list of methods that the Yaws page can satisfy. In this case, the only method called 'test1'.</p>
+<p>When we wish to return structured data, we simply let the user-defined RPC function return JSON structures such as </p>
+<div class="box">
+<pre>{struct, [{field1, &quot;foo&quot;}, {field2, &quot;bar&quot;}]} </pre></div>
+<p> for a structure and </p>
+<div class="box">
+<pre>{array, [&quot;foo&quot;, &quot;bar&quot;]}</pre></div>
+<p>for an array. We can nest arrays and structs in each other.</p>
+<p>Finally, we must stress that this example is extremely simple. In order to build a proper AJAX application in Yaws, a lot of client side  work is required, all Yaws provides is the basic mechanism whereby the client side JavaScript code can RPC the web server for data which can be subsequently used to populate the DOM. Also required to build a good AJAX application is good knowledge of how the DOM in the browser works</p>
+<p>The yaws_rpc:handler will also call: M:F(cookie_expire) which is expected to return a proper Cookie expire string. This makes it possible to setup the Cookie lifetime. If this callback function is non-existent, the default behaviour is to not set a cookie expiration time, i.e., it will live for this session only.</p>
+<h3>One more example </h3>
+<p>Here is yet another example, stolen from <a href="http://www.redhoterlang.com/entry/ac061493b201e3d1b4490cdc3f911068">Tobbe's blog.</a></p>
+<h4>Setup the DOM</h4>
+<p>In the file ''ex1.html'' we create the DOM with a little HTML and add some JavaScript that will talk with the Erlang server side.</p>
+<div class="box">
+<pre>
+
+&lt;html&gt;
+&lt;head&gt;
+&lt;script type=&quot;application/javascript&quot;
+           src=&quot;/jquery-1.2.3.js&quot;&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;script language=&quot;javascript&quot; type=&quot;application/javascript&quot;&gt;
+
+function ex1(what) {
+   $.getJSON(&quot;/ex1.yaws&quot;,
+            {'op': &quot;ex1&quot;, 'what': what},
+            function(x) {
+              do_ex1(what, x)
+            });
+}
+
+function do_ex1(what, x) {
+  jQuery.each(x, doit);
+}
+
+function doit() {
+  $('#'+this.who).html(this.what);
+}
+
+&lt;/script&gt;
+
+&lt;button onclick=&quot;ex1('one')&quot;&gt;Update one!&lt;/button&gt;
+&lt;button onclick=&quot;ex1('two')&quot;&gt;Update two!&lt;/button&gt;
+&lt;button onclick=&quot;ex1('three')&quot;&gt;Update three!&lt;/button&gt;
+
+&lt;div id=&quot;one&quot;&gt;This is one&lt;/div&gt;
+&lt;div id=&quot;two&quot;&gt;This is two&lt;/div&gt;
+&lt;div id=&quot;three&quot;&gt;This is three&lt;/div&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+</pre></div>
+<h4>The erlang server side</h4>
+<p>This is the code that needs to be installed and execute on the server side. It nicely illustrates how to return JSON structs to the client. </p>
+<div class="box">
+<pre>
+-module(ex1).
+-export([out/1]).
+
+out(A) -&gt;
+    L = yaws_api:parse_query(A),
+    dispatch(lkup(&quot;op&quot;, L, false), A, L).
+
+dispatch(&quot;ex1&quot;, A, L) -&gt;
+    ex1(A, L).
+
+ex1(_A, L) -&gt;
+    J = json2:encode(array(what(lkup(&quot;what&quot;, L, false)))),
+    return_json(J).
+
+what(&quot;one&quot;)   -&gt; one();
+what(&quot;two&quot;)   -&gt; one() ++ two();
+what(&quot;three&quot;) -&gt; one() ++ two() ++ three().
+
+array(L) -&gt; {array, L}.
+
+one()   -&gt; obj(&quot;one&quot;).
+two()   -&gt; obj(&quot;two&quot;).
+three() -&gt; obj(&quot;three&quot;).
+
+obj(M) -&gt;
+    obj(M, &quot;r&quot;).
+
+%%%
+%%% How ::= &quot;r&quot; | &quot;a&quot;  , r=replace, a=append
+%%%
+obj(M, How) -&gt;
+    C = now2str(),
+    [{struct,
+      [{&quot;who&quot;, M},
+       {&quot;how&quot;, How},
+       {&quot;what&quot;, C ++&quot; &quot;++M++&quot; content&quot;}]}].
+
+return_json(Json) -&gt;
+    {content,
+    &quot;application/json; charset=iso-8859-1&quot;,
+    Json}.
+
+now2str() -&gt;
+    {A,B,C} = erlang:now(),
+    i2l(A)++&quot;-&quot;++i2l(B)++&quot;-&quot;++i2l(C).
+
+i2l(I) when is_integer(I) -&gt; integer_to_list(I);
+i2l(L) when is_list(L)    -&gt; L.
+
+lkup(Key, List, Def) -&gt;
+    case lists:keysearch(Key, 1, List) of
+    {value,{_,Value}} -&gt; Value;
+    _                 -&gt; Def
+    end.
+
+</pre></div>
+<h2>The json library</h2>
+<p>The Yaws JSON library contains 3 simple functions,  one for encoding and two for decoding. See source code <a href="https://github.com/erlyaws/yaws/blob/master/src/json2.erl">json2.erl</a> for detailed instructions on usage.</p></div><div class="logo">
+<img src="/icons/yaws_pb.gif" alt="pbyaws" />
+</div>
+
+
+ <p>
+      <a href="http://validator.w3.org/check?uri=referer"><img
+          src="http://www.w3.org/Icons/valid-xhtml10"
+          alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+    </p>
+
+
+</body>
+</html>
+

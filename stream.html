@@ -1,0 +1,221 @@
+
+<!DOCTYPE html
+PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+
+<head>
+ <meta name="keywords" content="Yaws"/>
+ <title>Yaws</title>
+ <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+ <link rel="stylesheet" type="text/css" href="stil.css"/>
+ <link rel="shortcut icon" href="/icons/yaws_y.gif" type="image/x-icon"/>
+</head>
+
+<body>
+
+
+
+<div class="logo">
+   <img src="icons/yaws_head.gif" width="600" alt="YAWS"/>
+</div>
+
+
+
+<div id="sidebar">
+<h4> Yaws </h4>
+<div class=""> <a href="index.html" id="index" >Top Page</a> </div>
+<div class=""> <a href="configuration.html" id="configuration">Build Config and Run</a></div>
+<div class=""> <a href="dynamic.html" id="dynamic" >Dynamic Content</a> </div>
+<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="contact.html" id="contact">Contact </a> </div>
+<div class=""> <a href="doc.html" id="doc">Documentation</a>  </div>
+<div class=""> <a href="articles.html" id="resources">Articles</a> </div>
+
+<h4> Examples </h4>
+<div class=""> <a href="/json_intro.html">AJAX/JSON RPC</a></div>
+<div class=""> <a href="/appmods.html">Appmods</a> </div>
+<div class=""> <a href="/arg.html">Arg</a> </div>
+<div class=""> <a href="/privbind.html">Binding to Privileged Ports</a></div>
+<div class=""> <a href="/bindings.html">Bindings</a> </div>
+<div class=""> <a href="/cgi.html">CGI</a></div>
+<div class=""> <a href="/session.html">Cookie Sessions</a>   </div>
+<div class=""> <a href="/cookies.html">Cookies</a>  </div>
+<div class=""> <a href="/dynamic.html">Dynamic Content</a> </div>
+<div class=""> <a href="/embed.html">Embedding Yaws</a></div>
+<div class=""> <a href="/upload0.html">File Upload</a> </div>
+<div class=""> <a href="/form.html">Forms</a> </div>
+<div class=""> <a href="/haxe_intro.html">haXe Remoting</a></div>
+<div class=""> <a href="/pcookie.html">Persistent Cookies</a> </div>
+<div class=""> <a href="/query.html">Query Part of URL</a></div>
+<div class=""> <a href="/rebar_release.html">Rebar Releases</a></div>
+<div class=""> <a href="/redirect.html">Redirect</a> </div>
+<div class=""> <a href="/server_sent_events.html">Server-Sent Events</a> </div>
+<div class=""> <a href="/ssi.html">Server Side Includes</a> </div>
+<div class=""> <a href="/simple.html">Simple</a> </div>
+<div class=""> <a href="/soap_intro.html">SOAP with Yaws</a></div>
+<div class="choosen"> <a href="/stream.html">Streaming Data</a> </div>
+<div class=""> <a href="/websockets.html">Web Sockets</a> </div>
+<a href="/shoppingcart/index.html">Tiny Shopping Cart</a>
+<div class=""> <a href="/yapp_intro.html">Yaws Applications (yapps)</a></div>
+<div class=""> <a href="/logger_mod.html">Write Your Own Logger</a></div>
+
+<h4> Misc </h4>
+<div class=""> <a href="/internals.html">Internals</a> </div>
+
+
+
+</div>
+
+
+
+
+
+<div id="entry">
+<h1>Streaming data to the client</h1>
+<p>Sometimes we want to stream data to the client. Maybe we don't know or cannot compute the size of the data. Regardless of the reason, we do not want to keep all data in memory until it's shipped to the client. We want to use chunked encodings, and simply send data in chunks to the client. This is performed in steps. First the out/1 return value:</p>
+<div class="box">
+<pre> {streamcontent, MimeType, FirstChunk}</pre></div>
+<p>Is returned from the out/1 function This makes the erlang process within yaws processing that particular page go into a receive loop, waiting for more data. Somehow, another process in  the erlang system must then deliver data to the waiting/receiving erlang process. There are two asynchronous API functions that can be used to deliver that data.</p>
+<div class="box">
+<pre>yaws_api:stream_chunk_deliver(YawsPid, Data)</pre></div>
+<p>and</p>
+<div class="box">
+<pre>yaws_api:stream_chunk_end(YawsPid)</pre></div>
+<p>The YawsPid argument is the process identifier of the original yaws process processing the page, i.e. self(), in the .yaws file.</p>
+<p>Maybe this gets clear with a programming example, let's use a process reading  a random number of bytes from /dev/urandom as the source of the data</p>
+<div class="box">
+<pre>
+<erl>
+
+out(A) ->
+    Self = self(),
+    spawn(fun() ->
+                  %% Create a random number
+                  {_A1, A2, A3} = now(),
+                  rand:seed(exsplus, {erlang:phash(node(), 100000),
+                                      erlang:phash(A2, A3),
+                                      A3}),
+                  Sz = rand:uniform(100000),
+
+                  %% Read random junk
+                  S="dd if=/dev/urandom count=1 bs=" ++
+                      integer_to_list(Sz) ++ " 2>/dev/null",
+                  P = open_port({spawn, S}, [binary,stream, eof]),
+
+                  rec_loop(Self, P)
+          end),
+
+    {streamcontent, "application/octet-stream", <<>>}.
+
+
+rec_loop(YawsPid, P) ->
+    receive
+        {P, {data, BinData}} ->
+            yaws_api:stream_chunk_deliver(YawsPid, BinData),
+            rec_loop(YawsPid, P);
+        {P, eof} ->
+            port_close(P),
+            yaws_api:stream_chunk_end(YawsPid),
+            exit(normal)
+    end.
+
+
+</erl>
+
+</pre></div>
+<p>The above slightly bizarre code can be executed <a href="urandom.html">here</a>. The code creates a process which reads a random amount of bytes from /dev/urandom and sends them to the client, piece by piece. </p>
+<p>There is also a version of the API that delivers the data in a blocking fashion. Whenever the producer of the stream is faster than the consumer, that is the WWW client, we must use a synchronous version of the code. The api function is called:</p>
+<div class="box">
+<pre>yaws_api:stream_chunk_deliver_blocking(YawsPid, Data)</pre></div>
+<p>For applications that want to avoid buffering data in memory but do not want chunked transfer, or for applications that employ long-polling (Comet) techniques, another streamcontent variant lets the application send data directly on the client socket. Such applications should first return the following from their out/1 function:</p>
+<div class="box">
+<pre> {streamcontent_from_pid, MimeType, Pid}</pre></div>
+<p>where the Pid argument is the pid of the application process that will send the data, and MimeType is the MIME type of the data to be sent. When yaws is ready for Pid, it sends one of the following messages to it:</p>
+<ul>
+<li> {ok, YawsPid} indicates to Pid that it can send data over the socket, which is available as Arg#arg.clisock. YawsPid will be used later to tell yaws that Pid has finished streaming.</li>
+<li> {discard, YawsPid} indicates to Pid that it should avoid sending data to the socket. This is needed when the client invokes an HTTP request such as HEAD that has no response body.</li></ul>
+<p>Pid can send data on the socket by calling:</p>
+<div class="box">
+<pre> yaws_api:stream_process_deliver(Socket, IoList)</pre></div>
+<p>where IoList is the data to be sent. For chunked transfer, Pid must call:</p>
+<div class="box">
+<pre> yaws_api:stream_process_deliver_chunk(Socket, IoList)</pre></div>
+<p>which tells yaws to use HTTP chunked transfer to send IoList. Applications using chunked transfer in this manner must always remember to end their data transfer by calling:</p>
+<div class="box">
+<pre> yaws_api:stream_process_deliver_final_chunk(Socket, IoList)</pre></div>
+<p>where IoList is an iolist of size 0 or more. This creates the final HTTP chunk that the client uses to detect the end of the transfer.</p>
+<p>When Pid finishes sending data, or when it receives a {discard, YawsPid} message, it must call:</p>
+<div class="box">
+<pre> yaws_api:stream_process_end(Socket, YawsPid)</pre></div>
+<p>This informs yaws that Pid is finished with the socket and will no longer use it directly.</p>
+<div class="box">
+<pre> yaws_api:stream_process_end(closed, YawsPid)</pre></div>
+<p>This informs yaws that Pid has not only finished with the socket, but has also closed it. Yaws will not attempt to use the socket anymore after the application calls this function.</p>
+<p>Applications using streamcontent_from_pid should be sure to set a Content-Length header in their out/1 return value if they want to avoid chunked transfer encoding for their return value. Yaws automatically sets the HTTP Transfer-Encoding header to chunked if it doesn't detect a Content-Length header. Another alternative is to return the {header, {transfer_encoding, erase}} header from out/1 in order to disable chunked encoding.</p>
+<p>Here's an example of using streamcontent_from_pid:</p>
+<div class="box">
+<pre>
+<erl>
+
+out(A) ->
+    %% Create a random number
+    {_A1, A2, A3} = now(),
+    rand:seed(exsplus, {erlang:phash(node(), 100000),
+                        erlang:phash(A2, A3),
+                        A3}),
+    Sz = rand:uniform(100000),
+
+    Pid = spawn(fun() ->
+                        %% Read random junk
+                        S="dd if=/dev/urandom count=1 bs=" ++
+                            integer_to_list(Sz) ++ " 2>/dev/null",
+                        P = open_port({spawn, S}, [binary,stream, eof]),
+                        rec_loop(A#arg.clisock, P)
+                end),
+
+    [{header, {content_length, Sz}},
+     {streamcontent_from_pid, "application/octet-stream", Pid}].
+
+
+rec_loop(Sock, P) ->
+    receive
+        {discard, YawsPid} ->
+            yaws_api:stream_process_end(Sock, YawsPid);
+        {ok, YawsPid} ->
+            rec_loop(Sock, YawsPid, P)
+    end,
+    port_close(P),
+    exit(normal).
+
+rec_loop(Sock, YawsPid, P) ->
+    receive
+        {P, {data, BinData}} ->
+            yaws_api:stream_process_deliver(Sock, BinData),
+            rec_loop(Sock, YawsPid, P);
+        {P, eof} ->
+            yaws_api:stream_process_end(Sock, YawsPid)
+    end.
+
+</erl>
+
+</pre></div>
+<p>The above code can be executed <a href="urandom_from_pid.html">Here</a>. The code creates a process which reads a random amount of bytes from /dev/urandom and sends them to the client via the socket. </p></div><div class="logo">
+<img src="/icons/yaws_pb.gif" alt="pbyaws" />
+</div>
+
+
+ <p>
+      <a href="http://validator.w3.org/check?uri=referer"><img
+          src="http://www.w3.org/Icons/valid-xhtml10"
+          alt="Valid XHTML 1.0!" height="31" width="88" /></a>
+    </p>
+
+
+</body>
+</html>
+
+
+
+</html>

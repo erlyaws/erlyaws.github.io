@@ -25,7 +25,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
 <div id="sidebar">
 <h4> Yaws </h4>
-<div class="choosen"> <a href="index.html" id="index" >Top Page</a> </div>
+<div class=""> <a href="index.html" id="index" >Top Page</a> </div>
 <div class=""> <a href="configuration.html" id="configuration">Build Config and Run</a></div>
 <div class=""> <a href="dynamic.html" id="dynamic" >Dynamic Content</a> </div>
 <div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
@@ -38,7 +38,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 <div class=""> <a href="/appmods.html">Appmods</a> </div>
 <div class=""> <a href="/arg.html">Arg</a> </div>
 <div class=""> <a href="/privbind.html">Binding to Privileged Ports</a></div>
-<div class=""> <a href="/bindings.html">Bindings</a> </div>
+<div class="choosen"> <a href="/bindings.html">Bindings</a> </div>
 <div class=""> <a href="/cgi.html">CGI</a></div>
 <div class=""> <a href="/session.html">Cookie Sessions</a>   </div>
 <div class=""> <a href="/cookies.html">Cookies</a>  </div>
@@ -72,26 +72,130 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
 
 
+
+
 <div id="entry">
-<h1>Yaws</h1>
-<p>Yaws is a HTTP high perfomance 1.1 webserver particularly well suited for dynamic-content web applications. Two
-         separate modes of operations are supported:</p>
-<ul>
-<li>
-<p>Standalone mode where Yaws runs as a regular webserver daemon. This is the default mode.</p></li>
-<li>
-<p>Embedded mode where Yaws runs as an embedded webserver in another Erlang application.</p></li></ul>
-<p>Yaws is entirely written in <a href="http://www.erlang.org">Erlang</a>, and furthermore it is a multithreaded webserver where one Erlang lightweight process is used to handle each client.</p>
-<p>The main advantages of Yaws compared to other Web technologies are performance and elegance. The performance comes from the  underlying Erlang system and its ability to handle concurrent  processes in an efficent way. Its elegance comes from Erlang as well. Web applications don't have to be written in ugly ad hoc languages.</p>
-<h2>erlyaws.github.io</h2>
-<p>The www page for Yaws is <a href="http://erlyaws.github.io">erlyaws.github.io</a>. The documentation, examples as well as releases can be found there, and of course, <a href="http://erlyaws.github.io">erlyaws.github.io</a> is itself powered by Yaws.</p>
-<p>Code is on : <a href="http://github.com/erlyaws/yaws">http://github.com/erlyaws/yaws</a></p>
-<p>Travis test results at :<a href="https://github.com/erlyaws/yaws/actions/workflows/main.yml">https://github.com/erlyaws/yaws/actions/workflows/main.yml</a></p>
-<p>A mailing list exists at: <a href="https://lists.sourceforge.net/lists/listinfo/erlyaws-list">https://lists.sourceforge.net/lists/listinfo/erlyaws-list</a></p>
-<p>A lot of excellent engineers have contributed to Yaws over the years, we keep a list of all <a href="contributors.txt">contributors</a></p>
-<p>A high resolution logo created by Tomas Selander exists at <a href="yaws.eps">yaws.eps</a></p>
-<h2>News</h2>
-<p>To see all the most recent changes and activity in Yaws development, please visit the <a href="https://github.com/erlyaws/yaws">Yaws github repository</a>.</p></div><div class="logo">
+<h2> Bindings </h2>
+  <p>
+    Bindings are the opposite of
+    <a href="ssi.html"> Server Side Includes (SSI)</a>.
+    SSI is used when entire pages are written largely in EHTML and
+    snippets of HTML, or more typically javascript code is
+    inserted into the EHTML
+    code.
+  </p>
+
+  <p> Bindings are used the other way around. Essentially entire
+    pages are written in regular HTML but parts of the HTML needs to be
+    dynamically generated.
+  </p>
+  <p>The yaws callback out/1 can return
+  </p>
+  <div class="box">
+    <pre>
+      {bindings, [{Key1, Value2}, {Key2, Value2} .....]}.
+    </pre>
+  </div>
+
+
+  <p>All bindings can then be used in the rest of yaws code (in HTML source and
+    within erl tags). In HTML source <code>%%Key%%</code> is expanded to Value and
+    within erl tags <code>yaws_api:binding(Key)</code> or
+    <code>yaws_api:binding_find(Key)</code> can be used to extract Value.</p>
+
+  <p>By default, text that looks like <code>%%Key%%</code> is left as
+    is if Key is not included in the bindings list. To force Yaws to
+    treat all undefined bindings as empty strings, so it strips out
+    any text like <code>%%Key%%</code> when Key is not specified,
+    include the special directive <code>strip_undefined</code> in the
+    bindings list.</p>
+
+  <p>With the binding feature it is easier to write transparent yaws code making
+    it easier to to work together with Web people knowing little or
+    nothing about Erlang.</p>
+
+  <p>
+    An example:
+  </p>
+
+
+  <div class="box">
+  <pre>
+&lt;erl&gt;
+out(A) -&gt; {bindings, [{&quot;A&quot;, &quot;foo&quot;}, {&quot;B&quot;, &quot;baz&quot;}]}.
+&lt;/erl&gt;
+
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;%%A%%&lt;/p&gt;
+    &lt;p&gt;&lt;font size=&quot;4&quot;&gt;%%A%% != %%B%%&lt;/font&gt;&lt;/p&gt;
+    &lt;p&gt;An enormous amount of plain html source here.&lt;/p&gt;
+
+&lt;erl&gt;
+out(A) -&gt;
+    Value = yaws_api:binding(&quot;A&quot;),
+    {ehtml, {ul, [],
+             [{li, [],
+               Value},
+              {li, [],
+               &quot;gazonk&quot;}]}}.
+&lt;/erl&gt;
+
+%%A%% = %%A%% (hit me)
+&lt;/body&gt;
+&lt;/html&gt;
+
+</pre>
+</div>
+
+
+
+<p>
+  Which expands to:</p>
+
+  <div class="box">
+    <pre>
+
+&lt;html&gt;
+  &lt;body&gt;
+    &lt;p&gt;foo&lt;/p&gt;
+    &lt;p&gt;&lt;font size=&quot;4&quot;&gt;foo != baz&lt;/font&gt;&lt;/p&gt;
+    &lt;p&gt;An enormous amount of plain html source here.&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;foo&lt;/li&gt;
+      &lt;li&gt;gazonk&lt;/li&gt;&lt;/ul&gt;
+
+foo = foo (hit me)
+
+  &lt;/body&gt;
+&lt;/html&gt;
+
+    </pre>
+  </div>
+
+
+  <p> And is rendered as:</p>
+
+  <div class="box">
+    <p>foo</p>
+    <p><font size="4">foo != baz</font></p>
+    <p>An enormous amount of plain html source here.</p>
+
+    <ul>
+      <li>foo</li>
+      <li>gazonk</li>
+    </ul>
+
+    foo = foo (hit me)
+  </div>
+
+
+
+</div>
+
+
+<div class="logo">
 <img src="/icons/yaws_pb.gif" alt="pbyaws" />
 </div>
 
@@ -105,6 +209,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 
 </body>
 </html>
+
 
 
 
