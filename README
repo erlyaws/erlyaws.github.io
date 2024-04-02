@@ -6,8 +6,10 @@ yaws.hyber.org.
 
 The source is found in the Yaws repository [0] in the www directory.
 
-A script to produce this mirror from the Yaws source is available in
-the Yaws repository in scripts/update-gh-pages.
+A script to produce this mirror from the Yaws source is available in the
+Yaws repository in scripts/update-gh-pages. Note that the file suffix is
+changed from .yaws to .html in order to be served as github pages and
+that dynamic content does not work!
 
 The contents in this repository are licensed under the same terms as
 Yaws itself. See the LICENSE file for details.
@@ -16,4 +18,4 @@ Yaws itself. See the LICENSE file for details.
 [0] https://github.com/erlyaws/yaws
 
 
- -- Per Andersson <avtobiff@foo.nu>  Tue, 02 Apr 2024 23:11:04 +0200
+ -- Per Andersson <avtobiff@foo.nu>  Wed, 03 Apr 2024 01:27:03 +0200
