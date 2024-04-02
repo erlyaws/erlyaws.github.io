@@ -1,0 +1,19 @@
+Yaws Web Page
+=============
+
+This is a static mirror of the Yaws Web Page previously served on
+yaws.hyber.org.
+
+The source is found in the Yaws repository [0] in the www directory.
+
+A script to produce this mirror from the Yaws source is available in
+the Yaws repository in scripts/update-gh-pages.
+
+The contents in this repository are licensed under the same terms as
+Yaws itself. See the LICENSE file for details.
+
+
+[0] https://github.com/erlyaws/yaws
+
+
+ -- Per Andersson <avtobiff@foo.nu>  Tue, 02 Apr 2024 23:11:04 +0200
