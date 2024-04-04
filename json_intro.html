@@ -1,7 +1,7 @@
 
 <!DOCTYPE html
 PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+"https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html>
 
@@ -28,7 +28,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 <div class=""> <a href="index.html" id="index" >Top Page</a> </div>
 <div class=""> <a href="configuration.html" id="configuration">Build Config and Run</a></div>
 <div class=""> <a href="dynamic.html" id="dynamic" >Dynamic Content</a> </div>
-<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="https://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
 <div class=""> <a href="contact.html" id="contact">Contact </a> </div>
 <div class=""> <a href="doc.html" id="doc">Documentation</a>  </div>
 <div class=""> <a href="articles.html" id="resources">Articles</a> </div>
@@ -75,8 +75,8 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 <div id="entry">
 <h1>AJAX through JSON RPC</h1>
 <p><i>Note: this documentation used to refer to the module 'yaws_jsonrpc', but that module was deprecated in favor of 'yaws_rpc', which handles JSON RPC, haXe and SOAP remoting. For more specific information about SOAP, refer to <a href="/soap_intro.html">the SOAP page.</a></i></p>
-<p>The Yaws JSON-RPC binding is a way to have JavaScript code in the browser evaluate a remote procedure call (RPC) in the Yaws server. JSON itself as described at <a href="http://www.json.org/">http://www.json.org/ </a>is basically a simple marshaling format which can be used from a variety of different programming languages, and naturally it's completely straightforward to implement in JavaScript itself. JSON-RPC version 2.0, the version Yaws supports, is described here:</p>
-<p><a href="http://groups.google.com/group/json-rpc/web/json-rpc-2-0">http://groups.google.com/group/json-rpc/web/json-rpc-2-0</a></p>
+<p>The Yaws JSON-RPC binding is a way to have JavaScript code in the browser evaluate a remote procedure call (RPC) in the Yaws server. JSON itself as described at <a href="https://www.json.org/">https://www.json.org/ </a>is basically a simple marshaling format which can be used from a variety of different programming languages, and naturally it's completely straightforward to implement in JavaScript itself. JSON-RPC version 2.0, the version Yaws supports, is described here:</p>
+<p><a href="https://groups.google.com/group/json-rpc/web/json-rpc-2-0">https://groups.google.com/group/json-rpc/web/json-rpc-2-0</a></p>
 <p>The Yaws JSON-RPC implementation consist of JavaScript clients and a server side library that must be explicitly invoked by Erlang code in a .yaws page, appmod, etc.</p>
 <p>It is not particularly easy to show and explain an AJAX setup through JSON-RPC, but here is an attempt:</p>
 <p>First we have an HTML page which:</p>
@@ -202,7 +202,7 @@ counter([{ip, IP}] = _State, {call, test1, Value} = _Request, Session) -&gt;
 <pre>yaws_rpc:handler_session(A2, {sample_mod, counter}).</pre></li>
 <li>
 <pre>counter([{ip, IP}] = _State, {call, test1, Value} = _Request, Session)</pre></li></ol>
-<p>The first line tells Yaws to forward all JSON-RPC methods to the  "counter" function in the "sample_mod" module. The second line is the head of the counter function that will be called when the client invokes a method called 'test1'. We would duplicate this line with a different name than 'test1' for each RPC function we wish to implement. Note that the first atom in the request tuple will either be 'call' or 'notification' to indicate the type of request. As per the <a href="http://groups.google.com/group/json-rpc/web/json-rpc-2-0">JSON-RPC 2.0 specification</a>, a 'call' is a regular request-reply while a 'notification' is a one-way message that does not have a corresponding reply.</p>
+<p>The first line tells Yaws to forward all JSON-RPC methods to the  "counter" function in the "sample_mod" module. The second line is the head of the counter function that will be called when the client invokes a method called 'test1'. We would duplicate this line with a different name than 'test1' for each RPC function we wish to implement. Note that the first atom in the request tuple will either be 'call' or 'notification' to indicate the type of request. As per the <a href="https://groups.google.com/group/json-rpc/web/json-rpc-2-0">JSON-RPC 2.0 specification</a>, a 'call' is a regular request-reply while a 'notification' is a one-way message that does not have a corresponding reply.</p>
 <p>On the client side we have</p>
 <div class="box">
 <pre>
@@ -221,7 +221,7 @@ var service = new jsonrpc.ServiceProxy(serviceURL, methods);
 <p>Finally, we must stress that this example is extremely simple. In order to build a proper AJAX application in Yaws, a lot of client side  work is required, all Yaws provides is the basic mechanism whereby the client side JavaScript code can RPC the web server for data which can be subsequently used to populate the DOM. Also required to build a good AJAX application is good knowledge of how the DOM in the browser works</p>
 <p>The yaws_rpc:handler will also call: M:F(cookie_expire) which is expected to return a proper Cookie expire string. This makes it possible to setup the Cookie lifetime. If this callback function is non-existent, the default behaviour is to not set a cookie expiration time, i.e., it will live for this session only.</p>
 <h3>One more example </h3>
-<p>Here is yet another example, stolen from <a href="http://www.redhoterlang.com/entry/ac061493b201e3d1b4490cdc3f911068">Tobbe's blog.</a></p>
+<p>Here is yet another example, stolen from <a href="https://www.redhoterlang.com/entry/ac061493b201e3d1b4490cdc3f911068">Tobbe's blog.</a></p>
 <h4>Setup the DOM</h4>
 <p>In the file ''ex1.html'' we create the DOM with a little HTML and add some JavaScript that will talk with the Erlang server side.</p>
 <div class="box">
@@ -332,8 +332,8 @@ lkup(Key, List, Def) -&gt;
 
 
  <p>
-      <a href="http://validator.w3.org/check?uri=referer"><img
-          src="http://www.w3.org/Icons/valid-xhtml10"
+      <a href="https://validator.w3.org/check?uri=referer"><img
+          src="https://www.w3.org/Icons/valid-xhtml10"
           alt="Valid XHTML 1.0!" height="31" width="88" /></a>
     </p>
 

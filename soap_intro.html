@@ -1,7 +1,7 @@
 
 <!DOCTYPE html
 PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+"https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html>
 
@@ -28,7 +28,7 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 <div class=""> <a href="index.html" id="index" >Top Page</a> </div>
 <div class=""> <a href="configuration.html" id="configuration">Build Config and Run</a></div>
 <div class=""> <a href="dynamic.html" id="dynamic" >Dynamic Content</a> </div>
-<div class=""> <a href="http://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
+<div class=""> <a href="https://github.com/erlyaws/yaws/releases/" id="download">Download </a> </div>
 <div class=""> <a href="contact.html" id="contact">Contact </a> </div>
 <div class=""> <a href="doc.html" id="doc">Documentation</a>  </div>
 <div class=""> <a href="articles.html" id="resources">Articles</a> </div>
@@ -79,14 +79,14 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 <p>Yaws uses the 'erlsom' XML Schema parser and some SOAP specific library code. Thus, to be able to use SOAP with Yaws you need to have 'erlsom' installed. Currently, the easiest way of installing 'erlsom' is to check out the library from github.com and install it from there (you can also download a released version of erlsom and install it).</p>
 <p>To install 'erlsom' do:</p>
 <div class="box">
-<pre>git clone http://github.com/willemdj/erlsom.git
+<pre>git clone https://github.com/willemdj/erlsom.git
 cd erlsom; chmod a+x configure; ./configure; make
 sudo make install        # iff you want to install as root
 </pre></div>
-<p><b>Important:</b> The SOAP-specific code that makes use of erlsom has some limitations that it is important to be aware of. Only the Soap <i>'document'</i> binding style is supported. There is no support for non-soap bindings, nor for the RPC binding style. Also, only the <i>'literal'</i> encoding is supported There is no support for <i>'soap-encoding'</i>. For an explanation of the differences between these concepts, see this <a href="http://www-128.ibm.com/developerworks/webservices/library/ws-whichwsdl/">description</a>.</p>
+<p><b>Important:</b> The SOAP-specific code that makes use of erlsom has some limitations that it is important to be aware of. Only the Soap <i>'document'</i> binding style is supported. There is no support for non-soap bindings, nor for the RPC binding style. Also, only the <i>'literal'</i> encoding is supported There is no support for <i>'soap-encoding'</i>. For an explanation of the differences between these concepts, see this <a href="https://www-128.ibm.com/developerworks/webservices/library/ws-whichwsdl/">description</a>.</p>
 <h2>The SOAP client side</h2>
 <p>The SOAP interface is defined by a WSDL specification, which simply is a (rather verbose) piece of XML document that specifies the public interface for a web service. As a client, we don't need to understand everything in the WSDL specification The parts that are most interesting is the name of the operation we want to perform (i.e the function we want to call) and what input data it expects.</p>
-<p>As an example, lets have a look at a public SOAP service that returns some weather data for the location we send to it. The WSDL specification can be found here: <a href="http://www.webservicex.net/WeatherForecast.asmx?WSDL">http://www.webservicex.net/WeatherForecast.asmx?WSDL </a></p>
+<p>As an example, lets have a look at a public SOAP service that returns some weather data for the location we send to it. The WSDL specification can be found here: <a href="https://www.webservicex.net/WeatherForecast.asmx?WSDL">https://www.webservicex.net/WeatherForecast.asmx?WSDL </a></p>
 <p>We start by finding the operation named: <i>GetWeatherByPlaceName, </i>which is the operation we want to invoke. As can be seen, we have one input message and one output message defined. The input message is the one we (as a client) will send to the server. </p>
 <div class="box">
 <pre>&lt;wsdl:operation name=&quot;GetWeatherByPlaceName&quot;&gt;
@@ -118,7 +118,7 @@ sudo make install        # iff you want to install as root
 <pre>1&gt; inets:start().
 ok
 2&gt; yaws_soap_lib:call(
-      &quot;http://www.webservicex.net/WeatherForecast.asmx?WSDL&quot;,
+      &quot;https://www.webservicex.net/WeatherForecast.asmx?WSDL&quot;,
       &quot;GetWeatherByPlaceName&quot;,
       [&quot;Boston&quot;]).
 {ok,undefined,
@@ -145,7 +145,7 @@ ok
 <pre>1&gt; inets:start().
 ok
 2&gt; Wsdl = yaws_soap_lib:initModel(
-      &quot;http://www.webservicex.net/WeatherForecast.asmx?WSDL&quot;).
+      &quot;https://www.webservicex.net/WeatherForecast.asmx?WSDL&quot;).
 ...
 3&gt; yaws_soap_lib:call(
       Wsdl,
@@ -179,7 +179,7 @@ ok
 </pre></div>
 <p>Some final notes:
 <ul>
-<li>The "http://..." URL given as the first argument to the functions above may as well be a local file, and thus written as "file://....". </li>
+<li>The "https://..." URL given as the first argument to the functions above may as well be a local file, and thus written as "file://....". </li>
 <li>When we retrieve a HTTP located file, we will use 'ibrowse' if it exist in the code path. Otherwise we will use the OTP 'http' client.</li>
 <li>The prefix ('foo' in the example above) is passed to erlsom - it is one of erlsom's options. If you want to specify other options, you can also pass the regular erlsom options to yaws_soap_lib:initModel/2 and yaws_soap_lib:write_hrl/3. For example, to specify how files that the XSD inside the WSDL refers to via 'include' statements can be retrieved, you can pass it a function GetIncludes/4 by specifying [{include_fun, GetIncludes}]. See the erlsom documentation for other options that you could specify.</li></ul></p>
 <h2>The SOAP server side</h2>
@@ -188,14 +188,14 @@ ok
 <pre>8&gt; Ops = yaws_soap_lib:wsdl_operations(Wsdl).
 9&gt; {ok,Op} = yaws_soap_lib:get_operation(Ops, &quot;GetWeatherByPlaceName&quot;).
 10&gt; yaws_soap_lib:wsdl_op_address(Op).
-&quot;http://www.webservicex.net/WeatherForecast.asmx&quot;
+&quot;https://www.webservicex.net/WeatherForecast.asmx&quot;
 </pre></div>
 <p>Now, edit the WSDL file and change the above URL to something like this:</p>
 <div class="box">
 <pre>&lt;wsdl:service name=&quot;WeatherForecast&quot;&gt;
   &lt;documentation xmlns=......
   &lt;wsdl:port name=&quot;WeatherForecastSoap&quot;.....
-    &lt;soap:address location=&quot;http://localhost:8181/WeatherForecast.yaws&quot; /&gt;
+    &lt;soap:address location=&quot;https://localhost:8181/WeatherForecast.yaws&quot; /&gt;
   &lt;/wsdl:port&gt;
 .....
 </pre></div>
@@ -234,7 +234,7 @@ get_weather_info(Place) -&gt;
     WeatherData =
     #'p:WeatherData'{anyAttribs = [],
              'Day' = &quot;Sunday, December 10, 2006&quot;,
-             'WeatherImage' = &quot;http://www.nws.noaa.gov/weather/images/fcicons/nfew.jpg&quot;,
+             'WeatherImage' = &quot;https://www.nws.noaa.gov/weather/images/fcicons/nfew.jpg&quot;,
              'MaxTemperatureF' = &quot;51&quot;,
              'MinTemperatureF' = &quot;28&quot;,
              'MaxTemperatureC' = &quot;11&quot;,
@@ -311,8 +311,8 @@ ok
 
 
  <p>
-      <a href="http://validator.w3.org/check?uri=referer"><img
-          src="http://www.w3.org/Icons/valid-xhtml10"
+      <a href="https://validator.w3.org/check?uri=referer"><img
+          src="https://www.w3.org/Icons/valid-xhtml10"
           alt="Valid XHTML 1.0!" height="31" width="88" /></a>
     </p>
 
